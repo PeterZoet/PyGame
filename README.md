@@ -1,3 +1,3 @@
-### Python Game 
+# Python Game 
 ##  Hogeschool Rotterdam Informatica
-# Pygame Platformer
+### Pygame Platformer
