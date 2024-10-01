@@ -1,5 +1,4 @@
 import pygame
-# https://www.youtube.com/watch?v=wCD97pT8Uhw&list=PLsFyHm8kJsx32EFcsJNt5sDI_nKsanRUu&index=22
 
 pygame.init()
 
@@ -19,7 +18,10 @@ fps = 60
 timer = pygame.time.Clock()
 player_scale = 14
 level = [[0 for x in range(18)] for x in range(6)]
-level.append([4] + [0 for x in range(17)])
+
+#level design
+# 0 is empty tile, 1 is underground, 2 is ground, 3 is platform, 4 is player
+level.append([4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
 level.append([1 for x in range(18)])
 level.append([2 for x in range(18)])
 
@@ -41,12 +43,12 @@ def draw_level(level):
     """
     Drawes tiles in the game
     """
-    # 0 is empty frame, 1 is underground, 2 is ground, 3 is platform, 4 is player
+    # 0 is empty tile, 1 is underground, 2 is ground, 3 is platform, 4 is player
     for x in range(len(level)):
         for y in range(len(level[x])):
             value = level[x][y]
             if 0 < value < 4:
-                screen.blit(tiles[value], (x * tile_size, y * tile_size))
+                screen.blit(tiles[value], (y * tile_size, x * tile_size))
 
 
 
