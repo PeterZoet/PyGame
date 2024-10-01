@@ -1,43 +1,69 @@
-# Example file showing a circle moving on screen
 import pygame
+# https://www.youtube.com/watch?v=wCD97pT8Uhw&list=PLsFyHm8kJsx32EFcsJNt5sDI_nKsanRUu&index=22
 
-# pygame setup
 pygame.init()
-screen = pygame.display.set_mode((1280, 720))
-clock = pygame.time.Clock()
-running = True
-dt = 0
 
-player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
+"""
+Screen
+"""
+screen_width = 1800
+screen_height = 900
+screen = pygame.display.set_mode([screen_width, screen_height])
+pygame.display.set_caption('Peters Platformer')
+tile_size = 100
 
-while running:
-    # poll for events
-    # pygame.QUIT event means the user clicked X to close your window
+"""
+constants
+"""
+fps = 60
+timer = pygame.time.Clock()
+player_scale = 14
+level = [[0 for x in range(18)] for x in range(6)]
+level.append([4] + [0 for x in range(17)])
+level.append([1 for x in range(18)])
+level.append([2 for x in range(18)])
+
+"""
+Load images
+"""
+background = pygame.transform.scale(pygame.image.load('assets/images/background.png'), (screen_width, screen_height))
+ground = pygame.transform.scale(pygame.image.load('assets/images/tiles/ground.png'), (tile_size, tile_size))
+underground = pygame.transform.scale(pygame.image.load('assets/images/tiles/underground.png'), (tile_size, tile_size))
+platform = pygame.transform.scale(pygame.image.load('assets/images/tiles/platform.png'), (tile_size, 0.25 * tile_size))
+logo = pygame.transform.scale(pygame.image.load('assets/images/logo.png'), (300, 135)) 
+player_frames = []
+for x in range(4):
+    player_frames.append(pygame.transform.scale(pygame.image.load(f'assets/images/player/player_stance_{x+1}.png'), (5 * player_scale, 8 * player_scale)))
+
+tiles = ["", ground, underground, platform] # 0 is empty for easier coding later
+
+def draw_level(level):
+    """
+    Drawes tiles in the game
+    """
+    # 0 is empty frame, 1 is underground, 2 is ground, 3 is platform, 4 is player
+    for x in range(len(level)):
+        for y in range(len(level[x])):
+            value = level[x][y]
+            if 0 < value < 4:
+                screen.blit(tiles[value], (x * tile_size, y * tile_size))
+
+
+
+"""
+Game loop
+"""
+game_running = True
+while game_running:
+    
+    timer.tick(fps)
+    screen.blit(background, (0,0))
+    draw_level(level)
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            running = False
-
-    # fill the screen with a color to wipe away anything from last frame
-    screen.fill("purple")
-
-    pygame.draw.circle(screen, "red", player_pos, 40)
-
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_w]:
-        player_pos.y -= 300 * dt
-    if keys[pygame.K_s]:
-        player_pos.y += 300 * dt
-    if keys[pygame.K_a]:
-        player_pos.x -= 300 * dt
-    if keys[pygame.K_d]:
-        player_pos.x += 300 * dt
-
-    # flip() the display to put your work on screen
+            game_running = False
     pygame.display.flip()
 
-    # limits FPS to 60
-    # dt is delta time in seconds since last frame, used for framerate-
-    # independent physics.
-    dt = clock.tick(60) / 1000
-
+# Quit Pygame
 pygame.quit()
