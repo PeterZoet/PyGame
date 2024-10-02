@@ -23,7 +23,7 @@ level = [[0 for x in range(18)] for x in range(4)]
 # 0 is empty tile, 1 is ground, 2 is ground, 3 is platform, 4 is player
 level.append([0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2])
 level.append([0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,2,1])
-level.append([4,0,0,0,0,3,0,0,3,0,0,3,0,0,0,2,1,1])
+level.append([4,0,0,0,0,3,0,0,0,3,0,0,0,3,0,2,1,1])
 level.append([2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1])
 level.append([1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1])
 
@@ -45,9 +45,14 @@ init_x = player_x
 init_y = player_y
 counter = 0
 mode = 'idle'
+in_air = False
 direction = 1
 player_speed = 12
 colliding = False
+x_change = 0
+y_change = 0
+jump_height = 15
+gravity = 1
 
 """
 Load images
@@ -109,7 +114,7 @@ def checkCollision(level):
     right_coord = int((player_x + 60) // tile_size)
     left_coord = int(player_x // tile_size)
     top_coord = int((player_y + 30) // tile_size)
-    bottom_coord = int((player_y + 80) // tile_size)
+    bottom_coord = int((player_y + 140) // tile_size)
 
     top_right = level[top_coord][right_coord]
     bottom_right = level[bottom_coord][right_coord]
@@ -122,7 +127,7 @@ def checkCollision(level):
         # check if player collides with something on the right or left
         if 0 < top_right < 3 or 0 < bottom_right < 3:
             collide = 1
-        elif 0 < top_left < 3 or 0 < bottom_right < 3:
+        elif 0 < top_left < 3 or 0 < bottom_left < 3:
             collide = -1
         else:
             collide = 0
@@ -137,6 +142,26 @@ def checkCollision(level):
         collide = 0
 
     return collide
+
+# check feet collision on landings
+def check_verticals(player_y):
+    """
+     Check if player should fall or stay on tile
+     Not actual position but visual so it looks good while playing
+     :param player_y: player y position
+    """
+    center_coord = int((player_x + 25) // 100)
+    bottom_coord = int((player_y + 142) // 100)
+    if (player_y + 1420) > 0:
+        if 0 < level[bottom_coord][center_coord] < 4: # ground or underground or platform
+            falling = False
+        else:
+            falling = True
+    else:
+        falling = True
+    if not falling:
+        player_y = (bottom_coord - 5) * 100 - 20
+    return falling
 
 """
 Game loop
@@ -154,33 +179,47 @@ while game_running:
     screen.blit(background, (0,0))
     draw_level(level)
     draw_player(counter, direction, mode)
-
+    colliding = checkCollision(level)
 
     # handle player movement
     if mode == 'walk':
-        if direction == -1 and player_x > 0 and colliding != -1:
+        if direction == -1 and player_x > 0 and colliding != -1: # player moves to left
             player_x -= player_speed
-        elif direction == 1 and player_x < screen_width - 50 and colliding != 1:
+        elif direction == 1 and player_x < screen_width - 50 and colliding != 1: # player moves to right
             player_x += player_speed
-    colliding = checkCollision(level)
 
-  
+    
+    # jumping code
+    if in_air:
+        y_change -= gravity
+        player_y -= y_change
+    in_air = check_verticals(player_y)
+    if not in_air:
+        y_change = 0
 
+    # event handling
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             game_running = False
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RIGHT:
+            if event.key == pygame.K_RIGHT: # arrow right 
                 direction = 1
                 mode = 'walk'
-            elif event.key == pygame.K_LEFT:
+            elif event.key == pygame.K_LEFT: # arrow left
                 direction = -1
                 mode = 'walk'
+            elif event.key == pygame.K_SPACE and not in_air: # spacebar
+                in_air = True
+                y_change = jump_height
+            elif event.key == pygame.K_UP and not in_air: # arrow up
+                in_air = True
+                y_change = jump_height
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_RIGHT and direction == 1:
                 mode = 'idle'
             elif event.key == pygame.K_LEFT and direction == -1:
                 mode = 'idle'
+                
 
     pygame.display.flip()
 
