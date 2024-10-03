@@ -17,23 +17,28 @@ constants
 fps = 60
 timer = pygame.time.Clock()
 player_scale = 12
-level = [[0 for x in range(18)] for x in range(4)]
+
+# level = 18 tiles wide and 9 tiles heigh
+
+level = [[0 for x in range(18)] for x in range(3)]
 
 #level design test
-# 0 is empty tile, 1 is ground, 2 is ground, 3 is platform, 4 is player
+# 0 is empty tile, 1 is underground, 2 is ground, 3 is platform, 4 is player, 5-9 is knowledge, 10 is door
+level.append([0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
 level.append([0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2])
-level.append([0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,2,1])
-level.append([4,0,0,0,0,3,0,0,0,3,0,0,0,3,0,2,1,1])
+level.append([0,0,0,0,3,6,0,0,0,7,0,0,0,0,0,8,2,1])
+level.append([4,0,10,0,0,3,0,0,0,3,0,9,0,3,0,2,1,1])
 level.append([2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1])
 level.append([1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1])
 
 print(level)
 
-# loop trough the full list and find where 5 (player) is
+# loop trough the full list and find where 4 (player) is
 for y in range(len(level)):
     if 4 in level[y]:
         start_pos = (level[y].index(4), y)
         print(f"starting pos {start_pos}")
+
 
 """
 Game variables
@@ -44,6 +49,8 @@ player_y = start_pos[1] * tile_size - (12 * player_scale - tile_size)
 # remember initial location for respawn purposes
 init_x = player_x
 init_y = player_y
+
+inventory = [False, False, False, False, False]
 counter = 0
 mode = 'idle'
 in_air = False
@@ -63,7 +70,14 @@ background = pygame.transform.scale(pygame.image.load('assets/images/background.
 ground = pygame.transform.scale(pygame.image.load('assets/images/tiles/ground.png'), (tile_size, tile_size))
 underground = pygame.transform.scale(pygame.image.load('assets/images/tiles/underground2.png'), (tile_size, tile_size))
 platform = pygame.transform.scale(pygame.image.load('assets/images/tiles/platform.png'), (tile_size, 0.25 * tile_size))
-logo = pygame.transform.scale(pygame.image.load('assets/images/logo.png'), (300, 135)) 
+door = pygame.transform.scale(pygame.image.load('assets/images/door.png'), (tile_size, tile_size))
+lock = pygame.transform.scale(pygame.image.load('assets/images/lock.png'), (tile_size, tile_size))
+knowledge_1 = pygame.transform.scale(pygame.image.load('assets/images/knowledge.png'), (tile_size, tile_size))
+knowledge_2 = pygame.transform.scale(pygame.image.load('assets/images/knowledge.png'), (tile_size, tile_size))
+knowledge_3 = pygame.transform.scale(pygame.image.load('assets/images/knowledge.png'), (tile_size, tile_size))
+knowledge_4 = pygame.transform.scale(pygame.image.load('assets/images/knowledge.png'), (tile_size, tile_size))
+knowledge_5 = pygame.transform.scale(pygame.image.load('assets/images/knowledge.png'), (tile_size, tile_size))
+logo = pygame.transform.scale(pygame.image.load('assets/images/logo.png'), (300, 300)) 
 
 player_frames = []
 for x in range(4):
@@ -71,6 +85,7 @@ for x in range(4):
 
  # 0 is empty tile, 1 is underground, 2 is ground, 3 is platform, 4 is player
 tiles = ["", underground, ground, platform] # 0 is empty for easier coding later
+collectables = [knowledge_1, knowledge_2, knowledge_3, knowledge_4, knowledge_5]
 
 def show_menu():
     
@@ -126,14 +141,23 @@ def draw_player(count, direcection, mod):
 def draw_level(level):
     """
     Drawes tiles in the game
+    loop trough level and find values and load sprites
     :param level: 2d list of tiles
     """
-    # 0 is empty tile, 1 is underground, 2 is ground, 3 is platform, 4 is player
+    # 0 is empty tile, 1 is underground, 2 is ground, 3 is platform, 4 is player, 5-9 is knowledge, 10 is door
     for x in range(len(level)):
         for y in range(len(level[x])):
             value = level[x][y]
             if 0 < value < 4:
                 screen.blit(tiles[value], (y * tile_size, x * tile_size))
+            elif 4 < value < 10:
+                if not inventory[value - 5]: # not in inventory so draw it
+                    screen.blit(collectables[value - 5], (y * tile_size, x * tile_size))
+            elif value == 10:
+                screen.blit(door, (y * tile_size, x * tile_size))
+                if not inventory == [True, True, True, True, True]: 
+                    # if not all knowledge is collected, draw lock
+                    screen.blit(lock, (y * tile_size, x * tile_size))
 
 def checkCollision(level):
     """
@@ -141,7 +165,7 @@ def checkCollision(level):
      Not actual position but visual so it looks good while playing
     :param level: 2d list of tiles
     """
-    collide = 0
+    collide = False
     
     # hitbox of player
     right_coord = int((player_x + 60) // tile_size)
@@ -173,6 +197,21 @@ def checkCollision(level):
             collide = 0
     else:
         collide = 0
+
+    if 5 <= top_left <= 9: # when colliding with knowledge
+        if not inventory[top_left - 5]:
+            inventory[top_left - 5] = True
+    elif 5 <= top_right <= 9: 
+        if not inventory[top_right - 5]:
+            inventory[top_right - 5] = True
+    elif 5 <= bottom_left <= 9: 
+        if not inventory[top_right - 5]:
+            inventory[bottom_left - 5] = True
+    elif 5 <= bottom_right <= 9: 
+        if not inventory[top_right - 5]:
+            inventory[bottom_right - 5] = True
+
+
 
     return collide
 
