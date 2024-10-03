@@ -38,6 +38,7 @@ for y in range(len(level)):
 """
 Game variables
 """
+
 player_x = start_pos[0] * tile_size 
 player_y = start_pos[1] * tile_size - (12 * player_scale - tile_size) 
 # remember initial location for respawn purposes
@@ -54,6 +55,7 @@ y_change = 0
 jump_height = 15
 gravity = 1
 
+
 """
 Load images
 """
@@ -69,6 +71,37 @@ for x in range(4):
 
  # 0 is empty tile, 1 is underground, 2 is ground, 3 is platform, 4 is player
 tiles = ["", underground, ground, platform] # 0 is empty for easier coding later
+
+def show_menu():
+    
+    main_menu_background = pygame.image.load("assets/images/main_menu_background.png")
+    main_menu_background = pygame.transform.scale(main_menu_background, (screen_width, screen_height))
+    
+    menu_running = True
+    while menu_running:
+        screen.blit(main_menu_background, (0, 0))
+        
+        font = pygame.font.SysFont(None, 74)
+        title_surface = font.render("BASECAMP", True, (255, 255, 255))
+        start_surface = font.render("press ENTER to start your journey", True, (255, 255, 255))
+        exit_surface = font.render("press ESC to quit", True, (255, 255, 255))
+        
+        screen.blit(title_surface, (screen_width // 2 - title_surface.get_width() // 2, screen_height // 2 - 100))
+        screen.blit(start_surface, (screen_width // 2 - start_surface.get_width() // 2, screen_height // 2))
+        screen.blit(exit_surface, (screen_width // 2 - exit_surface.get_width() // 2, screen_height // 2 + 100))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                menu_running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:  # start spel
+                    menu_running = False
+                elif event.key == pygame.K_ESCAPE:  # eit spel
+                    pygame.quit()
+                    exit()
+
+        pygame.display.flip()
+
 
 def draw_player(count, direcection, mod):
     """
@@ -166,8 +199,10 @@ def check_verticals(player_y):
 """
 Game loop
 """
+show_menu()
 game_running = True
 while game_running:
+    
     
     timer.tick(fps)
 
