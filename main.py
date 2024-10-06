@@ -178,6 +178,17 @@ def checkCollision(level):
     top_left = level[top_coord][left_coord]
     bottom_left = level[bottom_coord][left_coord]
 
+    # hitbox of player with knowledge
+    right_coord_knowledge = int((player_x + 35) // tile_size)
+    left_coord_knowledge = int(player_x // tile_size)
+    top_coord_knowledge = int((player_y + 25) // tile_size)
+    bottom_coord_knowledge = int((player_y + 140) // tile_size)
+
+    top_right_knowledge = level[top_coord_knowledge][right_coord_knowledge]
+    bottom_right_knowledge = level[bottom_coord_knowledge][right_coord_knowledge]
+    top_left_knowledge = level[top_coord_knowledge][left_coord_knowledge]
+    bottom_left_knowledge = level[bottom_coord_knowledge][left_coord_knowledge]
+
     # 0 is empty tile, 1 is underground, 2 is ground, 3 is platform, 4 is player
 
     if top_coord >= 0: # check if player moves higher than screen and top coords collide
@@ -198,18 +209,19 @@ def checkCollision(level):
     else:
         collide = 0
 
-    if 5 <= top_left <= 9: # when colliding with knowledge
-        if not inventory[top_left - 5]:
-            inventory[top_left - 5] = True
-    elif 5 <= top_right <= 9: 
-        if not inventory[top_right - 5]:
-            inventory[top_right - 5] = True
-    elif 5 <= bottom_left <= 9: 
-        if not inventory[top_right - 5]:
-            inventory[bottom_left - 5] = True
-    elif 5 <= bottom_right <= 9: 
-        if not inventory[top_right - 5]:
-            inventory[bottom_right - 5] = True
+    # compensate for knowledge hitbox
+    if 5 <= top_left_knowledge <= 9: # when colliding with knowledge, 
+        if not inventory[top_left_knowledge - 5]:
+            inventory[top_left_knowledge - 5] = True
+    elif 5 <= top_right_knowledge <= 9: 
+        if not inventory[top_right_knowledge - 5]:
+            inventory[top_right_knowledge - 5] = True
+    elif 5 <= bottom_left_knowledge <= 9: 
+        if not inventory[bottom_left_knowledge - 5]:
+            inventory[bottom_left_knowledge - 5] = True
+    elif 5 <= bottom_right_knowledge <= 9: 
+        if not inventory[bottom_right_knowledge - 5]:
+            inventory[bottom_right_knowledge - 5] = True
 
 
 
