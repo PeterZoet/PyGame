@@ -107,6 +107,8 @@ def show_menu():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 menu_running = False
+                pygame.quit()
+                exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:  # start spel
                     menu_running = False
@@ -149,11 +151,11 @@ def draw_level(level):
             value = level[x][y]
             if 0 < value < 4:
                 screen.blit(tiles[value], (y * tile_size, x * tile_size))
-                if value == 3: #visualize visual platform border
-                    pygame.draw.circle(screen, (  255,   0, 0), (y * tile_size, x * tile_size), 5)
-                    pygame.draw.circle(screen, (  255,   0, 0), (y * tile_size + 100, x * tile_size + 20), 5)
-                    pygame.draw.circle(screen, (  255,   0, 0), (y * tile_size, x * tile_size + 20), 5)
-                    pygame.draw.circle(screen, (  255,   0, 0), (y * tile_size + 100, x * tile_size), 5)
+                # if value == 3: #visualize visual platform border
+                    # pygame.draw.circle(screen, (  255,   0, 0), (y * tile_size, x * tile_size), 5)
+                    # pygame.draw.circle(screen, (  255,   0, 0), (y * tile_size + 100, x * tile_size + 20), 5)
+                    # pygame.draw.circle(screen, (  255,   0, 0), (y * tile_size, x * tile_size + 20), 5)
+                    # pygame.draw.circle(screen, (  255,   0, 0), (y * tile_size + 100, x * tile_size), 5)
             elif 4 < value < 10:
                 if not inventory[value - 5]: # not in inventory so draw it
                     screen.blit(collectables[value - 5], (y * tile_size, x * tile_size))
@@ -182,10 +184,10 @@ def checkCollision(level):
     top_left = level[top_coord][left_coord]
     bottom_left = level[bottom_coord][left_coord]
     #visualize hitbox
-    pygame.draw.circle(screen, (  0,   0, 255), (player_x + 60, player_y + 10), 5)
-    pygame.draw.circle(screen, (  0,   0, 255), (player_x + 60, player_y + 140), 5)
-    pygame.draw.circle(screen, (  0,   0, 255), (player_x, player_y + 10), 5)
-    pygame.draw.circle(screen, (  0,   0, 255), (player_x, player_y + 140), 5)
+    # pygame.draw.circle(screen, (  0,   0, 255), (player_x + 60, player_y + 10), 5)
+    # pygame.draw.circle(screen, (  0,   0, 255), (player_x + 60, player_y + 140), 5)
+    # pygame.draw.circle(screen, (  0,   0, 255), (player_x, player_y + 10), 5)
+    # pygame.draw.circle(screen, (  0,   0, 255), (player_x, player_y + 140), 5)
 
     # hitbox of player with knowledge
     right_coord_knowledge = int((player_x + 20) // tile_size)
@@ -243,13 +245,13 @@ def check_verticals(y_pos):
     """
     center_coord = int((player_x + 25) // tile_size)
     bottom_coord = int((player_y + 140) // tile_size)
-    pygame.draw.circle(screen, (  0,   255, 0), (player_x + 25, player_y + 140), 5)
+    # pygame.draw.circle(screen, (  0,   255, 0), (player_x + 25, player_y + 140), 5)
     
     top_coord_platform = int((player_y + 240) // tile_size)
-    pygame.draw.circle(screen, (  255,   0, 0), (player_x + 25, player_y + 240), 5)
+    # pygame.draw.circle(screen, (  255,   0, 0), (player_x + 25, player_y + 240), 5)
 
     bottom_coord_platform = int((player_y + 40) // tile_size)
-    pygame.draw.circle(screen, (  0,   0, 255), (player_x + 25, player_y + 40), 5)
+    # pygame.draw.circle(screen, (  0,   0, 255), (player_x + 25, player_y + 40), 5)
 
     # 0 is empty tile, 1 is underground, 2 is ground, 3 is platform, 4 is player, 5 is knowledge
     if player_y + 110 > 0: # if full player is in level
