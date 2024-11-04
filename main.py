@@ -203,10 +203,10 @@ def check_verticals(level, player_x, player_y):
     bottom_coord = int((player_y + 140) // tile_size)
     # pygame.draw.circle(screen, (  0,   255, 0), (player_x + 25, player_y + 140), 5)
     
-    top_coord_platform = int((player_y + 240) // tile_size)
+    # top_coord_platform = int((player_y + 240) // tile_size)
     # pygame.draw.circle(screen, (  255,   0, 0), (player_x + 25, player_y + 240), 5)
 
-    bottom_coord_platform = int((player_y + 40) // tile_size)
+    # bottom_coord_platform = int((player_y + 40) // tile_size)
     # pygame.draw.circle(screen, (  0,   0, 255), (player_x + 25, player_y + 40), 5)
 
     # 0 is empty tile, 1 is underground, 2 is ground, 3 is platform, 4 is player, 5 is knowledge
