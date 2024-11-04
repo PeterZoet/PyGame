@@ -18,8 +18,8 @@ timer = pygame.time.Clock()
 # Game variables
 inventory = [False, False, False, False, False]
 player_speed = 12
-jump_height = 15
-gravity = 1
+jump_height = 20
+gravity =  1
 
 # Load images
 background = pygame.transform.scale(pygame.image.load('assets/images/background.png'), (screen_width, screen_height))
@@ -30,11 +30,11 @@ door = pygame.transform.scale(pygame.image.load('assets/images/door.png'), (tile
 lock = pygame.transform.scale(pygame.image.load('assets/images/lock.png'), (tile_size, tile_size))
 knowledge = [pygame.transform.scale(pygame.image.load('assets/images/knowledge.png'), (tile_size, tile_size)) for _ in range(5)]
 logo = pygame.transform.scale(pygame.image.load('assets/images/logo.png'), (300, 300))
-
-player_frames = [
-    pygame.transform.scale(pygame.image.load(f'assets/images/player/player_stance_{x+1}.png'), (5 * player_scale, 12 * player_scale))
-    for x in range(4)
-]
+newplayer = pygame.transform.scale(pygame.image.load('assets/images/player/new_design_0.png'), (8 * player_scale, 10 * player_scale))
+# player_frames = [
+#     pygame.transform.scale(pygame.image.load(f'assets/images/player/player_stance_{x+1}.png'), (5 * player_scale, 12 * player_scale))
+#     for x in range(4)
+# ]
 tiles = ["", underground, ground, platform]
 
 def load_level():
@@ -97,7 +97,7 @@ def show_menu():
         pygame.display.flip()
 
 
-def draw_player(count, direction, mode, x, y):
+def draw_player(direction, mode, x, y):
     """
     Draw the player on the screen,load the correct image for the animation
 
@@ -108,12 +108,12 @@ def draw_player(count, direction, mode, x, y):
     :param y: y coord of player
     """
     if mode != 'idle':
-        frame = player_frames[count // 5]
-        frame = pygame.transform.flip(frame, True, False) if direction == -1 else frame
-        screen.blit(frame, (x, y))
+        # frame = player_frames[count // 5]
+        frame = pygame.transform.flip(newplayer, True, False) if direction == -1 else newplayer
+        screen.blit(newplayer, (x, y))
     else:
-        frame = pygame.transform.flip(player_frames[0], True, False) if direction == -1 else player_frames[0]
-        screen.blit(frame, (x, y))
+        frame = pygame.transform.flip(newplayer, True, False) if direction == -1 else newplayer
+        screen.blit(newplayer, (x, y))
         
 
 def draw_level(level):
@@ -148,8 +148,8 @@ def check_collision(level, player_x, player_y):
     right_coord = int((player_x + 60) // tile_size)
     left_coord = int(player_x // tile_size)
     top_coord = int((player_y + 30) // tile_size)
-    bottom_coord = int((player_y + 140) // tile_size)
-
+    bottom_coord = int((player_y + 104) // tile_size)
+    
     top_right = level[top_coord][right_coord]
     bottom_right = level[bottom_coord][right_coord]
     top_left = level[top_coord][left_coord]
@@ -199,9 +199,9 @@ def check_verticals(level, player_x, player_y):
     Not actual position but visual so it looks good while playing
     :param y_pos: player y position
     """
-    center_coord = int((player_x + 25) // tile_size)
-    bottom_coord = int((player_y + 140) // tile_size)
-    # pygame.draw.circle(screen, (  0,   255, 0), (player_x + 25, player_y + 140), 5)
+    center_coord = int((player_x + 45) // tile_size)
+    bottom_coord = int((player_y + 105) // tile_size)
+    # pygame.draw.circle(screen, (  0,   255, 0), (player_x + 25, player_y + 105), 5)
     
     # top_coord_platform = int((player_y + 240) // tile_size)
     # pygame.draw.circle(screen, (  255,   0, 0), (player_x + 25, player_y + 240), 5)
@@ -209,7 +209,8 @@ def check_verticals(level, player_x, player_y):
     # bottom_coord_platform = int((player_y + 40) // tile_size)
     # pygame.draw.circle(screen, (  0,   0, 255), (player_x + 25, player_y + 40), 5)
 
-    # 0 is empty tile, 1 is underground, 2 is ground, 3 is platform, 4 is player, 5 is knowledge
+    # 0 is empty tile, 1 is underground, 2 is ground, 3 is platform, 4 is player, 5 is knowledge 
+    # VROEGER PLAYER_Y + 110 > 0
     if player_y + 110 > 0: # if full player is in level
         if 0 < level[bottom_coord][center_coord] <  4: # ground or underground
             falling = False
@@ -220,7 +221,7 @@ def check_verticals(level, player_x, player_y):
     else:
         falling = True
     if not falling: # compensate for falling trough a tile
-        player_y = (bottom_coord - 1) * 100 - 41
+        player_y = (bottom_coord - 1) * 100 - 6
 
     return falling, player_y
 
@@ -234,15 +235,16 @@ def game_loop(level, start_pos):
     :param start_pos: player starting position
     """
     x, y = start_pos[0] * tile_size, start_pos[1] * tile_size - (12 * player_scale - tile_size)
-    counter, direction, mode, in_air = 0, 1, 'idle', False
+    direction, mode, in_air = 1, 'idle', False
+    # counter = 0
     y_change, colliding = 0, False
     
     while True:
         timer.tick(fps)
-        counter = (counter + 1) % 20
+ #       counter = (counter + 1) % 20
         screen.blit(background, (0,0))
         draw_level(level)
-        draw_player(counter, direction, mode, x, y)
+        draw_player(direction, mode, x, y)
         colliding = check_collision(level, x, y)
         
         if mode == 'walk':
