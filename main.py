@@ -148,14 +148,38 @@ def draw_level(level: list[list[int]]):
                 if not all(inventory):
                     screen.blit(lock, (y * tile_size, x * tile_size))
 
-
+border_lightbulb_img = pygame.image.load('assets/images/border_knowledge.png')
+off_lightbulb_img = pygame.image.load('assets/images/off_knowledge.png')
+lightbulb_img = pygame.transform.scale(border_lightbulb_img, (100, 100)) 
+off_lightbulb_img = pygame.transform.scale(off_lightbulb_img, (100, 100)) 
 def draw_inventory():   
     """
     Visualizes the inventory
     """
-    font = pygame.font.SysFont(None, 50)
-    invent_surface = font.render(f"Inventory {"X" if inventory[0] == True else "[ ]"} - {"X" if inventory[1] == True else "[ ]"} - {"X" if inventory[2] == True else "[ ]"} - {"X" if inventory[3] == True else "[ ]"} - {"X" if inventory[4] == True else "[ ]"}", True, (196, 45, 69))
-    screen.blit(invent_surface, (5, 5))
+    if inventory[0]:
+        screen.blit(lightbulb_img, (5, 0))
+    else:
+        screen.blit(off_lightbulb_img, (5, 5))
+
+    if inventory[1]:
+        screen.blit(lightbulb_img, (105, 0))
+    else:
+        screen.blit(off_lightbulb_img, (105, 5))
+
+    if inventory[2]:
+        screen.blit(lightbulb_img, (205, 0))
+    else:
+        screen.blit(off_lightbulb_img, (205, 5))
+
+    if inventory[3]:
+        screen.blit(lightbulb_img, (305, 0))
+    else:
+        screen.blit(off_lightbulb_img, (305, 5))
+
+    if inventory[4]:
+        screen.blit(lightbulb_img, (405, 0))
+    else:
+        screen.blit(off_lightbulb_img, (405, 5))
 
 
 def check_collision(level: list[list[int]], player_x: int, player_y: int):
