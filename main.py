@@ -72,14 +72,14 @@ def show_menu():
     """
     !Zeiler deze toevoegen!
     """
-    main_menu_background = pygame.transform.scale(pygame.image.load("assets/images/main_menu_background.png"), (screen_width, screen_height))
+    main_menu_background = pygame.transform.scale(pygame.image.load("assets/images/new_main_menu_background.jpg"), (screen_width, screen_height))
     menu_running = True
     while menu_running:
         screen.blit(main_menu_background, (0, 0))
         font = pygame.font.SysFont(None, 74)
-        title_surface = font.render("BASECAMP", True, (255, 255, 255))
-        start_surface = font.render("Press ENTER to start", True, (255, 255, 255))
-        exit_surface = font.render("Press ESC to quit", True, (255, 255, 255))
+        title_surface = font.render("", True, (255, 255, 255))
+        start_surface = font.render("", True, (255, 255, 255))
+        exit_surface = font.render("", True, (255, 255, 255))
         screen.blit(title_surface, (screen_width // 2 - title_surface.get_width() // 2, screen_height // 2 - 100))
         screen.blit(start_surface, (screen_width // 2 - start_surface.get_width() // 2, screen_height // 2))
         screen.blit(exit_surface, (screen_width // 2 - exit_surface.get_width() // 2, screen_height // 2 + 100))
