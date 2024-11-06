@@ -8,7 +8,7 @@ Screen settings
 screen_width = 1800
 screen_height = 900
 screen = pygame.display.set_mode([screen_width, screen_height])
-pygame.display.set_caption('Platformer')
+pygame.display.set_caption('Knowledge Quest; A BaseCamp Adventure')
 tile_size = 100
 
 """
@@ -94,8 +94,9 @@ def show_menu():
     menu_running = True
     while menu_running:
         screen.blit(main_menu_background, (0, 0))
+        font = pygame.font.SysFont(None, 94)
+        title_surface = font.render("Knowledge Quest; A BaseCamp Adventure", True, (196, 45, 69))
         font = pygame.font.SysFont(None, 74)
-        title_surface = font.render("BASECAMP", True, (255, 255, 255))
         start_surface = font.render("Press ENTER to start", True, (255, 255, 255))
         exit_surface = font.render("Press ESC to quit", True, (255, 255, 255))
         screen.blit(title_surface, (screen_width // 2 - title_surface.get_width() // 2, screen_height // 2 - 100))
