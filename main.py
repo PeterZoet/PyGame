@@ -37,6 +37,11 @@ door = pygame.transform.scale(pygame.image.load('assets/images/door.png'), (tile
 lock = pygame.transform.scale(pygame.image.load('assets/images/lock.png'), (tile_size, tile_size))
 knowledge = [pygame.transform.scale(pygame.image.load('assets/images/knowledge.png'), (tile_size, tile_size)) for _ in range(5)]
 logo = pygame.transform.scale(pygame.image.load('assets/images/logo.png'), (300, 300))
+#inventory
+border_lightbulb_img = pygame.image.load('assets/images/border_knowledge.png')
+off_lightbulb_img = pygame.image.load('assets/images/off_knowledge.png')
+lightbulb_img = pygame.transform.scale(border_lightbulb_img, (100, 100)) 
+off_lightbulb_img = pygame.transform.scale(off_lightbulb_img, (100, 100)) 
 
 # player_frames = [
 #     pygame.transform.scale(pygame.image.load(f'assets/images/player/player_stance_{x+1}.png'), (5 * player_scale, 12 * player_scale))
@@ -148,10 +153,7 @@ def draw_level(level: list[list[int]]):
                 if not all(inventory):
                     screen.blit(lock, (y * tile_size, x * tile_size))
 
-border_lightbulb_img = pygame.image.load('assets/images/border_knowledge.png')
-off_lightbulb_img = pygame.image.load('assets/images/off_knowledge.png')
-lightbulb_img = pygame.transform.scale(border_lightbulb_img, (100, 100)) 
-off_lightbulb_img = pygame.transform.scale(off_lightbulb_img, (100, 100)) 
+
 def draw_inventory():   
     """
     Visualizes the inventory
