@@ -1,38 +1,49 @@
 import pygame
 
-# Initialize pygame
 pygame.init()
 
-# Screen settings
+"""
+Screen settings
+"""
 screen_width = 1800
 screen_height = 900
 screen = pygame.display.set_mode([screen_width, screen_height])
 pygame.display.set_caption('Platformer')
 tile_size = 100
 
-# Constants
+"""
+Constants
+"""
 fps = 60
 player_scale = 12
 timer = pygame.time.Clock()
 
-# Game variables
+"""
+Game variables
+"""
 inventory = [False, False, False, False, False]
-player_speed = 12
+player_speed = 10
 jump_height = 15
 gravity = 1
 
-# Load images
+"""
+Load images
+"""
 background = pygame.transform.scale(pygame.image.load('assets/images/background.png'), (screen_width, screen_height))
 ground = pygame.transform.scale(pygame.image.load('assets/images/tiles/ground.png'), (tile_size, tile_size))
 underground = pygame.transform.scale(pygame.image.load('assets/images/tiles/underground2.png'), (tile_size, tile_size))
-platform = pygame.transform.scale(pygame.image.load('assets/images/tiles/platform.png'), (tile_size, 0.25 * tile_size))
+platform = pygame.transform.scale(pygame.image.load('assets/images/tiles/platform.png'), (tile_size, 0.6 * tile_size))
 door = pygame.transform.scale(pygame.image.load('assets/images/door.png'), (tile_size, tile_size))
 lock = pygame.transform.scale(pygame.image.load('assets/images/lock.png'), (tile_size, tile_size))
 knowledge = [pygame.transform.scale(pygame.image.load('assets/images/knowledge.png'), (tile_size, tile_size)) for _ in range(5)]
 logo = pygame.transform.scale(pygame.image.load('assets/images/logo.png'), (300, 300))
 
+# player_frames = [
+#     pygame.transform.scale(pygame.image.load(f'assets/images/player/player_stance_{x+1}.png'), (5 * player_scale, 12 * player_scale))
+#     for x in range(4)
+# ]
 player_frames = [
-    pygame.transform.scale(pygame.image.load(f'assets/images/player/player_stance_{x+1}.png'), (5 * player_scale, 12 * player_scale))
+    pygame.transform.scale(pygame.image.load(f'assets/images/player/new_design_{1}.png'), (5 * player_scale, 9.2 * player_scale))
     for x in range(4)
 ]
 tiles = ["", underground, ground, platform]
@@ -41,36 +52,38 @@ def load_level():
     """
     Create a list of list wit digits that represent certain entities
 
-    :return: a level filled with entities
+    :return: a level filled with digits representing assets
     """
     level = [[0 for x in range(18)] for x in range(3)]
     level += [
-        [0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
-        [0,0,0,0,3,6,0,0,0,7,0,0,0,0,0,8,2,1],
-        [4,0,10,0,0,3,0,0,0,3,0,9,0,3,0,2,1,1],
+        [0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7],
+        [0,0,3,0,6,0,0,0,0,0,0,0,0,0,0,0,0,2],
+        [0,0,0,0,3,0,0,0,0,3,0,0,0,0,9,8,2,1],
+        [4,0,10,0,0,0,3,0,0,0,0,0,0,0,0,2,1,1],
         [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1],
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
     ]
     return level
 
 
-def find_player_start(level: list) -> tuple[int, int]:
+def find_player_start(level: list[list[int]]) -> tuple[int, int]:
     """
     Loop trough the level and find player starting position
 
-    :param level: the list of digits that represent entities
+    :param level: the list of digits
     :return: the x and y coord of the players start position
     """
-    for y in range(len(level)):
-        if 4 in level[y]:
-            return (level[y].index(4), y)
+    for _ in range(len(level)):
+        if 4 in level[_]:
+            return (_, level[_].index(4))
     return (0, 0)
 
 
 def show_menu():
     """
-    !Zeiler deze toevoegen!
+    Present a menu to the user, options:
+    - Press ENTER to start
+    - Press ESC to quit
     """
     main_menu_background = pygame.transform.scale(pygame.image.load("assets/images/main_menu_background.png"), (screen_width, screen_height))
     menu_running = True
@@ -97,7 +110,7 @@ def show_menu():
         pygame.display.flip()
 
 
-def draw_player(count, direction, mode, x, y):
+def draw_player(count: int, direction: int, mode: str, x: int, y: int):
     """
     Draw the player on the screen,load the correct image for the animation
 
@@ -116,7 +129,7 @@ def draw_player(count, direction, mode, x, y):
         screen.blit(frame, (x, y))
         
 
-def draw_level(level):
+def draw_level(level: list[list[int]]):
     """
     draw the level on the screen load the correct image based on value of tile
 
@@ -136,19 +149,26 @@ def draw_level(level):
                     screen.blit(lock, (y * tile_size, x * tile_size))
 
 
-def check_collision(level, player_x, player_y):
+def check_collision(level: list[list[int]], player_x: int, player_y: int):
     """
     Check if player is colliding
     Not actual position but visual so it looks good while playing
+
     :param level: 2d list of tiles
     """
     collide = False
     
     # hitbox of player
-    right_coord = int((player_x + 60) // tile_size)
+    right_coord = int((player_x + 50) // tile_size)
     left_coord = int(player_x // tile_size)
-    top_coord = int((player_y + 30) // tile_size)
-    bottom_coord = int((player_y + 140) // tile_size)
+    top_coord = int((player_y + 10) // tile_size)
+    bottom_coord = int((player_y + 90) // tile_size)
+
+    # pygame.draw.circle(screen, (  255,   0, 0), (player_x + 50, player_y + 10), 5) #top right
+    # pygame.draw.circle(screen, (  255,   0, 0), (player_x, player_y + 10), 5) #top left
+    # pygame.draw.circle(screen, (  255,   0, 0), (player_x + 50, player_y + 90), 5) #bottom right
+    # pygame.draw.circle(screen, (  255,   0, 0), (player_x, player_y + 90), 5) #bottom left
+
 
     top_right = level[top_coord][right_coord]
     bottom_right = level[bottom_coord][right_coord]
@@ -158,7 +178,6 @@ def check_collision(level, player_x, player_y):
     # 0 is empty tile, 1 is underground, 2 is ground, 3 is platform, 4 is player
 
     if top_coord >= 0: # check if player moves higher than screen and top coords collide
-        # check if player collides with something on the right or left
         if 0 < top_right < 3 or 0 < bottom_right < 3:
             collide = 1
         elif 0 < top_left < 3 or 0 < bottom_left < 3:
@@ -188,73 +207,86 @@ def check_collision(level, player_x, player_y):
         if not inventory[top_right - 5]:
             inventory[bottom_right - 5] = True
 
-
+    if all(inventory):
+        if top_left == 10 or top_right == 1 or bottom_left == 10 or bottom_right == 10:
+             # when colliding with door and all knowledge in inventory
+            font = pygame.font.SysFont(None, 74)
+            title_surface = font.render("Gewonnen", True, (196, 45, 69))
+            screen.blit(title_surface, (screen_width // 2 - title_surface.get_width() // 2, screen_height // 2 - 100))
+    else:
+        if top_left == 10 or top_right == 1 or bottom_left == 10 or bottom_right == 10:
+             # when colliding with door and all knowledge in inventory
+            font = pygame.font.SysFont(None, 60)
+            title_surface = font.render("Zoek 5 kennis lampjes om het slot weg te halen", True, (0, 0, 0))
+            screen.blit(title_surface, (screen_width // 2 - title_surface.get_width() // 2, screen_height - 750))
+            
 
     return collide
 
-# check feet collision on landings
-def check_verticals(level, player_x, player_y):
+
+def check_verticals(level: list[list[int]], player_x: int, player_y: int):
     """
     Check if player should fall or stay on tile
     Not actual position but visual so it looks good while playing
     :param y_pos: player y position
     """
-    center_coord = int((player_x + 25) // tile_size)
-    bottom_coord = int((player_y + 140) // tile_size)
-    # pygame.draw.circle(screen, (  0,   255, 0), (player_x + 25, player_y + 140), 5)
-    
-    # top_coord_platform = int((player_y + 240) // tile_size)
-    # pygame.draw.circle(screen, (  255,   0, 0), (player_x + 25, player_y + 240), 5)
-
-    # bottom_coord_platform = int((player_y + 40) // tile_size)
-    # pygame.draw.circle(screen, (  0,   0, 255), (player_x + 25, player_y + 40), 5)
+    center_coord = int((player_x + 30) // 100)
+    bottom_coord = int((player_y + 110) // 100)
+    # pygame.draw.circle(screen, (  0,   255, 0), (player_x + 30, player_y + 110), 5)
 
     # 0 is empty tile, 1 is underground, 2 is ground, 3 is platform, 4 is player, 5 is knowledge
     if player_y + 110 > 0: # if full player is in level
-        if 0 < level[bottom_coord][center_coord] <  4: # ground or underground
+        if 0 < level[bottom_coord][center_coord] <  4: # ground, underground or platform
             falling = False
-        # elif level[bottom_coord_platform][center_coord] == 3: # platform
-        #     falling = False
         else:
             falling = True
     else:
         falling = True
     if not falling: # compensate for falling trough a tile
-        player_y = (bottom_coord - 1) * 100 - 41
+        player_y = (bottom_coord - 1) * 100 - 10 # 1 compensates for gravity/jump_height
 
     return falling, player_y
 
 
-
-def game_loop(level, start_pos):
+def game_loop(level: list[list[int]], start_pos: tuple[int, int]):
     """
     The loop of the game, it runs on 60 fps.
 
     :param level: 2d list of tiles
     :param start_pos: player starting position
     """
-    x, y = start_pos[0] * tile_size, start_pos[1] * tile_size - (12 * player_scale - tile_size)
-    counter, direction, mode, in_air = 0, 1, 'idle', False
-    y_change, colliding = 0, False
+    player_x = start_pos[1] * 100
+    player_y = start_pos[0] * 100 - ( 8 * player_scale - 100)
+    counter = 0
+    direction =  1
+    y_change = 0
+    mode = 'idle'
+    in_air = False
+    colliding = False
     
     while True:
         timer.tick(fps)
-        counter = (counter + 1) % 20
+
+        if counter < 19:
+            counter += 1
+        else:
+            counter = 0 
+
         screen.blit(background, (0,0))
         draw_level(level)
-        draw_player(counter, direction, mode, x, y)
-        colliding = check_collision(level, x, y)
+        draw_player(counter, direction, mode, player_x, player_y)
+        colliding = check_collision(level, player_x, player_y)
         
         if mode == 'walk':
-            if direction == -1 and x > 0 and colliding != -1:
-                x -= player_speed
-            elif direction == 1 and x < screen_width - 50 and colliding != 1:
-                x += player_speed
+            if direction == -1 and player_x > 0 and colliding != -1:
+                player_x -= player_speed
+            elif direction == 1 and player_x < screen_width - 50 and colliding != 1:
+                player_x += player_speed
 
         if in_air:
             y_change -= gravity
-            y -= y_change
-        in_air, y = check_verticals(level, x, y)
+            player_y -= y_change
+        in_air, player_y = check_verticals(level, player_x, player_y)
         if not in_air:
             y_change = 0
 
@@ -275,11 +307,13 @@ def game_loop(level, start_pos):
 
         pygame.display.flip()
 
+
 def main():
     level = load_level()
     start_pos = find_player_start(level)
     show_menu()
     game_loop(level, start_pos)
+
 
 if __name__ == "__main__":
     main()
