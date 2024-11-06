@@ -149,6 +149,15 @@ def draw_level(level: list[list[int]]):
                     screen.blit(lock, (y * tile_size, x * tile_size))
 
 
+def draw_inventory():   
+    """
+    Visualizes the inventory
+    """
+    font = pygame.font.SysFont(None, 50)
+    invent_surface = font.render(f"Inventory {"X" if inventory[0] == True else "[ ]"} - {"X" if inventory[1] == True else "[ ]"} - {"X" if inventory[2] == True else "[ ]"} - {"X" if inventory[3] == True else "[ ]"} - {"X" if inventory[4] == True else "[ ]"}", True, (196, 45, 69))
+    screen.blit(invent_surface, (5, 5))
+
+
 def check_collision(level: list[list[int]], player_x: int, player_y: int):
     """
     Check if player is colliding
@@ -275,12 +284,13 @@ def game_loop(level: list[list[int]], start_pos: tuple[int, int]):
         screen.blit(background, (0,0))
         draw_level(level)
         draw_player(counter, direction, mode, player_x, player_y)
+        draw_inventory()
         colliding = check_collision(level, player_x, player_y)
         
         if mode == 'walk':
             if direction == -1 and player_x > 0 and colliding != -1:
                 player_x -= player_speed
-            elif direction == 1 and player_x < screen_width - 50 and colliding != 1:
+            elif direction == 1 and player_x < screen_width - 60 and colliding != 1:
                 player_x += player_speed
 
         if in_air:
