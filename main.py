@@ -1,4 +1,5 @@
 import pygame
+from levels import *
 
 pygame.init()
 
@@ -25,6 +26,7 @@ inventory = [False, False, False, False, False]
 player_speed = 10
 jump_height = 15
 gravity = 1
+active_level = 0
 
 """
 Load images
@@ -35,39 +37,31 @@ underground = pygame.transform.scale(pygame.image.load('assets/images/tiles/unde
 platform = pygame.transform.scale(pygame.image.load('assets/images/tiles/platform.png'), (tile_size, 0.6 * tile_size))
 door = pygame.transform.scale(pygame.image.load('assets/images/door.png'), (tile_size, tile_size))
 lock = pygame.transform.scale(pygame.image.load('assets/images/lock.png'), (tile_size, tile_size))
-knowledge = [pygame.transform.scale(pygame.image.load('assets/images/knowledge.png'), (tile_size, tile_size)) for _ in range(5)]
+knowledge = [
+    pygame.transform.scale(pygame.image.load('assets/images/knowledge.png'), (tile_size, tile_size)) 
+    for _ in range(5)
+]
 logo = pygame.transform.scale(pygame.image.load('assets/images/logo.png'), (300, 300))
-#inventory
-border_lightbulb_img = pygame.image.load('assets/images/border_knowledge.png')
-off_lightbulb_img = pygame.image.load('assets/images/off_knowledge.png')
-lightbulb_img = pygame.transform.scale(border_lightbulb_img, (100, 100)) 
-off_lightbulb_img = pygame.transform.scale(off_lightbulb_img, (100, 100)) 
 
 # player_frames = [
 #     pygame.transform.scale(pygame.image.load(f'assets/images/player/player_stance_{x+1}.png'), (5 * player_scale, 12 * player_scale))
 #     for x in range(4)
 # ]
+
 player_frames = [
     pygame.transform.scale(pygame.image.load(f'assets/images/player/new_design_{1}.png'), (5 * player_scale, 9.2 * player_scale))
     for x in range(4)
 ]
 tiles = ["", underground, ground, platform]
 
-def load_level():
+def load_level(active_level: int) -> list[list[int]]:
     """
     Create a list of list wit digits that represent certain entities
 
     :return: a level filled with digits representing assets
     """
-    level = [[0 for x in range(18)] for x in range(3)]
-    level += [
-        [0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7],
-        [0,0,3,0,6,0,0,0,0,0,0,0,0,0,0,0,0,2],
-        [0,0,0,0,3,0,0,0,0,3,0,0,0,0,9,8,2,1],
-        [4,0,10,0,0,0,3,0,0,0,0,0,0,0,0,2,1,1],
-        [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    ]
+    # from levels.py
+    level = levels[active_level]
     return level
 
 
@@ -159,30 +153,22 @@ def draw_inventory():
     """
     Visualizes the inventory
     """
-    if inventory[0]:
-        screen.blit(lightbulb_img, (5, 0))
-    else:
-        screen.blit(off_lightbulb_img, (5, 5))
+    font = pygame.font.SysFont(None, 30)
+    pygame.draw.rect(screen, 'black', [5, screen_height - 120, screen_width - 10, 110], 0, 5)
+    pygame.draw.rect(screen, (196, 45, 69), [5, screen_height - 120, screen_width - 10, 110], 3, 5)
+    pygame.draw.rect(screen, 'white', [8, screen_height - 117, 420, 104], 1, 5)
+    pygame.draw.rect(screen, 'white', [428, screen_height - 117, 872, 104], 1, 5)
+    pygame.draw.rect(screen, 'white', [880, screen_height - 117, 910, 104], 1, 5)
+    font.italic = True
+    inventory_text = font.render('Inventory:', True, 'white')
+    screen.blit(inventory_text, (14, screen_height - 113))
+    for _ in range(5):
+        pygame.draw.rect(screen, (196, 45, 69), [15 + (80 * _), screen_height - 88, 70, 70], 5, 5)
+        if inventory[_]:
+            scaled_knowledge = pygame.transform.scale(knowledge[_], (55, 55))
+            screen.blit(scaled_knowledge, (25 + (80 * _), screen_height - 88))
 
-    if inventory[1]:
-        screen.blit(lightbulb_img, (105, 0))
-    else:
-        screen.blit(off_lightbulb_img, (105, 5))
 
-    if inventory[2]:
-        screen.blit(lightbulb_img, (205, 0))
-    else:
-        screen.blit(off_lightbulb_img, (205, 5))
-
-    if inventory[3]:
-        screen.blit(lightbulb_img, (305, 0))
-    else:
-        screen.blit(off_lightbulb_img, (305, 5))
-
-    if inventory[4]:
-        screen.blit(lightbulb_img, (405, 0))
-    else:
-        screen.blit(off_lightbulb_img, (405, 5))
 
 
 def check_collision(level: list[list[int]], player_x: int, player_y: int):
@@ -242,21 +228,7 @@ def check_collision(level: list[list[int]], player_x: int, player_y: int):
     elif 5 <= bottom_right <= 9: 
         if not inventory[top_right - 5]:
             inventory[bottom_right - 5] = True
-
-    if all(inventory):
-        if top_left == 10 or top_right == 1 or bottom_left == 10 or bottom_right == 10:
-             # when colliding with door and all knowledge in inventory
-            font = pygame.font.SysFont(None, 74)
-            title_surface = font.render("Gewonnen", True, (196, 45, 69))
-            screen.blit(title_surface, (screen_width // 2 - title_surface.get_width() // 2, screen_height // 2 - 100))
-    else:
-        if top_left == 10 or top_right == 1 or bottom_left == 10 or bottom_right == 10:
-             # when colliding with door and all knowledge in inventory
-            font = pygame.font.SysFont(None, 60)
-            title_surface = font.render("Zoek 5 kennis lampjes om het slot weg te halen", True, (0, 0, 0))
-            screen.blit(title_surface, (screen_width // 2 - title_surface.get_width() // 2, screen_height - 750))
-            
-
+          
     return collide
 
 
@@ -346,7 +318,7 @@ def game_loop(level: list[list[int]], start_pos: tuple[int, int]):
 
 
 def main():
-    level = load_level()
+    level = load_level(active_level)
     start_pos = find_player_start(level)
     show_menu()
     game_loop(level, start_pos)
