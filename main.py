@@ -2,6 +2,9 @@ import pygame
 
 pygame.init()
 
+pygame.mixer.music.load('assets/audio/theme.mp3')  
+pygame.mixer.music.play(-1)
+
 """
 Screen settings
 """
@@ -30,12 +33,19 @@ gravity = 1
 Load images
 """
 background = pygame.transform.scale(pygame.image.load('assets/images/background.png'), (screen_width, screen_height))
+level_one_wall = pygame.transform.scale(pygame.image.load('assets/images/level_one_wall.png'), (screen_width, screen_height))
 ground = pygame.transform.scale(pygame.image.load('assets/images/tiles/ground.png'), (tile_size, tile_size))
+level_one_ground = pygame.transform.scale(pygame.image.load('assets/images/tiles/level_one_ground.png'), (tile_size, tile_size))
 underground = pygame.transform.scale(pygame.image.load('assets/images/tiles/underground2.png'), (tile_size, tile_size))
+new_underground = pygame.transform.scale(pygame.image.load('assets/images/tiles/new_underground.png'), (tile_size, tile_size))
 platform = pygame.transform.scale(pygame.image.load('assets/images/tiles/platform.png'), (tile_size, 0.6 * tile_size))
+stone_platform = pygame.transform.scale(pygame.image.load('assets/images/tiles/stone_platform.png'), (tile_size, 0.6 * tile_size))
 door = pygame.transform.scale(pygame.image.load('assets/images/door.png'), (tile_size, tile_size))
+new_door = pygame.transform.scale(pygame.image.load('assets/images/new_door.png'), (tile_size, tile_size))
 lock = pygame.transform.scale(pygame.image.load('assets/images/lock.png'), (tile_size, tile_size))
+new_lock = pygame.transform.scale(pygame.image.load('assets/images/new_lock.png'), (tile_size, tile_size))
 knowledge = [pygame.transform.scale(pygame.image.load('assets/images/knowledge.png'), (tile_size, tile_size)) for _ in range(5)]
+new_knowledge = [pygame.transform.scale(pygame.image.load('assets/images/new_knowledge.png'), (tile_size, tile_size)) for _ in range(5)]
 logo = pygame.transform.scale(pygame.image.load('assets/images/logo.png'), (300, 300))
 
 # player_frames = [
@@ -46,7 +56,7 @@ player_frames = [
     pygame.transform.scale(pygame.image.load(f'assets/images/player/new_design_{1}.png'), (5 * player_scale, 9.2 * player_scale))
     for x in range(4)
 ]
-tiles = ["", underground, ground, platform]
+tiles = ["", new_underground, level_one_ground, stone_platform]
 
 def load_level():
     """
@@ -121,12 +131,12 @@ def draw_player(count: int, direction: int, mode: str, x: int, y: int):
     :param y: y coord of player
     """
     if mode != 'idle':
-        # frame = player_frames[count // 5]
-        frame = pygame.transform.flip(newplayer, True, False) if direction == -1 else newplayer
-        screen.blit(newplayer, (x, y))
+        frame = player_frames[count // 5]
+        frame = pygame.transform.flip(frame, True, False) if direction == -1 else frame
+        screen.blit(frame, (x, y))
     else:
-        frame = pygame.transform.flip(newplayer, True, False) if direction == -1 else newplayer
-        screen.blit(newplayer, (x, y))
+        frame = pygame.transform.flip(player_frames[0], True, False) if direction == -1 else player_frames[0]
+        screen.blit(frame, (x, y))
         
 
 def draw_level(level: list[list[int]]):
@@ -142,11 +152,11 @@ def draw_level(level: list[list[int]]):
                 screen.blit(tiles[value], (y * tile_size, x * tile_size))
             elif 5 <= value <= 9:
                 if not inventory[value - 5]:
-                    screen.blit(knowledge[value - 5], (y * tile_size, x * tile_size))
+                    screen.blit(new_knowledge[value - 5], (y * tile_size, x * tile_size))
             elif value == 10:
-                screen.blit(door, (y * tile_size, x * tile_size))
+                screen.blit(new_door, (y * tile_size, x * tile_size))
                 if not all(inventory):
-                    screen.blit(lock, (y * tile_size, x * tile_size))
+                    screen.blit(new_lock, (y * tile_size, x * tile_size))
 
 
 def check_collision(level: list[list[int]], player_x: int, player_y: int):
@@ -273,7 +283,7 @@ def game_loop(level: list[list[int]], start_pos: tuple[int, int]):
         else:
             counter = 0 
 
-        screen.blit(background, (0,0))
+        screen.blit(level_one_wall, (0,0))
         draw_level(level)
         draw_player(counter, direction, mode, player_x, player_y)
         colliding = check_collision(level, player_x, player_y)
