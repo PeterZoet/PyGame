@@ -3,6 +3,9 @@ from levels import *
 
 pygame.init()
 
+pygame.mixer.music.load('assets/audio/theme.mp3')  
+pygame.mixer.music.play(-1)
+
 """
 Screen settings
 """
@@ -32,15 +35,19 @@ active_level = 0
 Load images
 """
 background = pygame.transform.scale(pygame.image.load('assets/images/background.png'), (screen_width, screen_height))
+level_one_wall = pygame.transform.scale(pygame.image.load('assets/images/level_one_wall.png'), (screen_width, screen_height))
 ground = pygame.transform.scale(pygame.image.load('assets/images/tiles/ground.png'), (tile_size, tile_size))
+level_one_ground = pygame.transform.scale(pygame.image.load('assets/images/tiles/level_one_ground.png'), (tile_size, tile_size))
 underground = pygame.transform.scale(pygame.image.load('assets/images/tiles/underground2.png'), (tile_size, tile_size))
+new_underground = pygame.transform.scale(pygame.image.load('assets/images/tiles/new_underground.png'), (tile_size, tile_size))
 platform = pygame.transform.scale(pygame.image.load('assets/images/tiles/platform.png'), (tile_size, 0.6 * tile_size))
+stone_platform = pygame.transform.scale(pygame.image.load('assets/images/tiles/stone_platform.png'), (tile_size, 0.6 * tile_size))
 door = pygame.transform.scale(pygame.image.load('assets/images/door.png'), (tile_size, tile_size))
+new_door = pygame.transform.scale(pygame.image.load('assets/images/new_door.png'), (tile_size, tile_size))
 lock = pygame.transform.scale(pygame.image.load('assets/images/lock.png'), (tile_size, tile_size))
-knowledge = [
-    pygame.transform.scale(pygame.image.load('assets/images/knowledge.png'), (tile_size, tile_size)) 
-    for _ in range(5)
-]
+new_lock = pygame.transform.scale(pygame.image.load('assets/images/new_lock.png'), (tile_size, tile_size))
+knowledge = [pygame.transform.scale(pygame.image.load('assets/images/knowledge.png'), (tile_size, tile_size)) for _ in range(5)]
+new_knowledge = [pygame.transform.scale(pygame.image.load('assets/images/new_knowledge.png'), (tile_size, tile_size)) for _ in range(5)]
 logo = pygame.transform.scale(pygame.image.load('assets/images/logo.png'), (300, 300))
 
 # player_frames = [
@@ -57,9 +64,7 @@ player_frames = [
     pygame.transform.scale(pygame.image.load(f'assets/images/player/new_player_stance_{x + 1}.png'), (9 * player_scale, 9.2 * player_scale))
     for x in range(11)
 ]
-
-
-tiles = ["", underground, ground, platform]
+tiles = ["", new_underground, level_one_ground, stone_platform]
 
 def load_level(active_level: int) -> list[list[int]]:
     """
@@ -91,15 +96,16 @@ def show_menu():
     - Press ENTER to start
     - Press ESC to quit
     """
-    main_menu_background = pygame.transform.scale(pygame.image.load("assets/images/main_menu_background.png"), (screen_width, screen_height))
+    main_menu_background = pygame.transform.scale(pygame.image.load("assets/images/new_main_menu_background.jpg"), (screen_width, screen_height))
     menu_running = True
     while menu_running:
         screen.blit(main_menu_background, (0, 0))
         font = pygame.font.SysFont(None, 94)
         title_surface = font.render("Knowledge Quest; A BaseCamp Adventure", True, (196, 45, 69))
         font = pygame.font.SysFont(None, 74)
-        start_surface = font.render("Press ENTER to start", True, (255, 255, 255))
-        exit_surface = font.render("Press ESC to quit", True, (255, 255, 255))
+        title_surface = font.render("", True, (255, 255, 255))
+        start_surface = font.render("", True, (255, 255, 255))
+        exit_surface = font.render("", True, (255, 255, 255))
         screen.blit(title_surface, (screen_width // 2 - title_surface.get_width() // 2, screen_height // 2 - 100))
         screen.blit(start_surface, (screen_width // 2 - start_surface.get_width() // 2, screen_height // 2))
         screen.blit(exit_surface, (screen_width // 2 - exit_surface.get_width() // 2, screen_height // 2 + 100))
@@ -149,11 +155,11 @@ def draw_level(level: list[list[int]]):
                 screen.blit(tiles[value], (y * tile_size, x * tile_size))
             elif 5 <= value <= 9:
                 if not inventory[value - 5]:
-                    screen.blit(knowledge[value - 5], (y * tile_size, x * tile_size))
+                    screen.blit(new_knowledge[value - 5], (y * tile_size, x * tile_size))
             elif value == 10:
-                screen.blit(door, (y * tile_size, x * tile_size))
+                screen.blit(new_door, (y * tile_size, x * tile_size))
                 if not all(inventory):
-                    screen.blit(lock, (y * tile_size, x * tile_size))
+                    screen.blit(new_lock, (y * tile_size, x * tile_size))
 
 
 def draw_inventory():   
@@ -249,7 +255,8 @@ def check_verticals(level: list[list[int]], player_x: int, player_y: int):
     bottom_coord = int((player_y + 110) // 100)
     # pygame.draw.circle(screen, (  0,   255, 0), (player_x + 30, player_y + 110), 5)
 
-    # 0 is empty tile, 1 is underground, 2 is ground, 3 is platform, 4 is player, 5 is knowledge
+    # 0 is empty tile, 1 is underground, 2 is ground, 3 is platform, 4 is player, 5 is knowledge 
+    # VROEGER PLAYER_Y + 110 > 0
     if player_y + 110 > 0: # if full player is in level
         if 0 < level[bottom_coord][center_coord] <  4: # ground, underground or platform
             falling = False
@@ -287,7 +294,7 @@ def game_loop(level: list[list[int]], start_pos: tuple[int, int]):
         else:
             counter = 0 
 
-        screen.blit(background, (0,0))
+        screen.blit(level_one_wall, (0,0))
         draw_level(level)
         draw_player(counter, direction, mode, player_x, player_y)
         draw_inventory()
