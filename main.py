@@ -48,10 +48,17 @@ logo = pygame.transform.scale(pygame.image.load('assets/images/logo.png'), (300,
 #     for x in range(4)
 # ]
 
+# player_frames = [
+#     pygame.transform.scale(pygame.image.load(f'assets/images/player/new_design_{1}.png'), (5 * player_scale, 9.2 * player_scale))
+#     for x in range(4)
+# ]
+
 player_frames = [
-    pygame.transform.scale(pygame.image.load(f'assets/images/player/new_design_{1}.png'), (5 * player_scale, 9.2 * player_scale))
-    for x in range(4)
+    pygame.transform.scale(pygame.image.load(f'assets/images/player/new_player_stance_{x + 1}.png'), (9 * player_scale, 9.2 * player_scale))
+    for x in range(11)
 ]
+
+
 tiles = ["", underground, ground, platform]
 
 def load_level(active_level: int) -> list[list[int]]:
@@ -184,12 +191,12 @@ def check_collision(level: list[list[int]], player_x: int, player_y: int):
     right_coord = int((player_x + 50) // tile_size)
     left_coord = int(player_x // tile_size)
     top_coord = int((player_y + 10) // tile_size)
-    bottom_coord = int((player_y + 90) // tile_size)
+    bottom_coord = int((player_y + 100) // tile_size)
 
-    # pygame.draw.circle(screen, (  255,   0, 0), (player_x + 50, player_y + 10), 5) #top right
-    # pygame.draw.circle(screen, (  255,   0, 0), (player_x, player_y + 10), 5) #top left
-    # pygame.draw.circle(screen, (  255,   0, 0), (player_x + 50, player_y + 90), 5) #bottom right
-    # pygame.draw.circle(screen, (  255,   0, 0), (player_x, player_y + 90), 5) #bottom left
+    pygame.draw.circle(screen, (  255,   0, 0), (player_x + 50, player_y + 10), 5) #top right
+    pygame.draw.circle(screen, (  255,   0, 0), (player_x, player_y + 10), 5) #top left
+    pygame.draw.circle(screen, (  255,   0, 0), (player_x + 50, player_y + 100), 5) #bottom right
+    pygame.draw.circle(screen, (  255,   0, 0), (player_x, player_y + 100), 5) #bottom left
 
 
     top_right = level[top_coord][right_coord]
