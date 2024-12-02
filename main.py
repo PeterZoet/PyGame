@@ -50,20 +50,11 @@ knowledge = [pygame.transform.scale(pygame.image.load('assets/images/knowledge.p
 new_knowledge = [pygame.transform.scale(pygame.image.load('assets/images/new_knowledge.png'), (tile_size, tile_size)) for _ in range(5)]
 logo = pygame.transform.scale(pygame.image.load('assets/images/logo.png'), (300, 300))
 
-# player_frames = [
-#     pygame.transform.scale(pygame.image.load(f'assets/images/player/player_stance_{x+1}.png'), (5 * player_scale, 12 * player_scale))
-#     for x in range(4)
-# ]
-
-# player_frames = [
-#     pygame.transform.scale(pygame.image.load(f'assets/images/player/new_design_{1}.png'), (5 * player_scale, 9.2 * player_scale))
-#     for x in range(4)
-# ]
-
 player_frames = [
-    pygame.transform.scale(pygame.image.load(f'assets/images/player/new_player_stance_{x + 1}.png'), (9 * player_scale, 9.2 * player_scale))
+    pygame.transform.scale(pygame.image.load(f'assets/images/player/stance_{x + 1}_player.png'), (5.5 * player_scale, 9.2 * player_scale))
     for x in range(11)
 ]
+
 tiles = ["", new_underground, level_one_ground, stone_platform]
 
 def load_level(active_level: int) -> list[list[int]]:
@@ -146,6 +137,15 @@ def draw_level(level: list[list[int]]):
     """
     draw the level on the screen load the correct image based on value of tile
 
+    -   Game components
+        -   0 is empty tile
+        -   1 is underground
+        -   2 is ground
+        -   3 is platform
+        -   4 is player
+        -   5-9 is knowlegde
+        -   10 is door
+
     :param level: list of list, contains values of tiles
     """
     for x in range(len(level)):
@@ -182,8 +182,6 @@ def draw_inventory():
             screen.blit(scaled_knowledge, (25 + (80 * _), screen_height - 88))
 
 
-
-
 def check_collision(level: list[list[int]], player_x: int, player_y: int):
     """
     Check if player is colliding
@@ -210,7 +208,7 @@ def check_collision(level: list[list[int]], player_x: int, player_y: int):
     top_left = level[top_coord][left_coord]
     bottom_left = level[bottom_coord][left_coord]
 
-    # 0 is empty tile, 1 is underground, 2 is ground, 3 is platform, 4 is player
+    # 0 is empty tile, 1 is underground, 2 is ground, 3 is platform, 4 is player, 5-9 is knowlegde, 10 is door
 
     if top_coord >= 0: # check if player moves higher than screen and top coords collide
         if 0 < top_right < 3 or 0 < bottom_right < 3:
