@@ -41,7 +41,7 @@ level_one_ground = pygame.transform.scale(pygame.image.load('assets/images/tiles
 underground = pygame.transform.scale(pygame.image.load('assets/images/tiles/underground2.png'), (tile_size, tile_size))
 new_underground = pygame.transform.scale(pygame.image.load('assets/images/tiles/new_underground.png'), (tile_size, tile_size))
 platform = pygame.transform.scale(pygame.image.load('assets/images/tiles/platform.png'), (tile_size, 0.6 * tile_size))
-stone_platform = pygame.transform.scale(pygame.image.load('assets/images/tiles/stone_platform.png'), (tile_size, 0.6 * tile_size))
+stone_platform = pygame.transform.scale(pygame.image.load('assets/images/tiles/vines_platform.png'), (tile_size, tile_size))
 door = pygame.transform.scale(pygame.image.load('assets/images/door.png'), (tile_size, tile_size))
 new_door = pygame.transform.scale(pygame.image.load('assets/images/new_door.png'), (tile_size, tile_size))
 lock = pygame.transform.scale(pygame.image.load('assets/images/lock.png'), (tile_size, tile_size))
@@ -197,10 +197,10 @@ def check_collision(level: list[list[int]], player_x: int, player_y: int):
     top_coord = int((player_y + 10) // tile_size)
     bottom_coord = int((player_y + 100) // tile_size)
 
-    pygame.draw.circle(screen, (  255,   0, 0), (player_x + 50, player_y + 10), 5) #top right
-    pygame.draw.circle(screen, (  255,   0, 0), (player_x, player_y + 10), 5) #top left
-    pygame.draw.circle(screen, (  255,   0, 0), (player_x + 50, player_y + 100), 5) #bottom right
-    pygame.draw.circle(screen, (  255,   0, 0), (player_x, player_y + 100), 5) #bottom left
+    # pygame.draw.circle(screen, (  255,   0, 0), (player_x + 50, player_y + 10), 5) #top right
+    # pygame.draw.circle(screen, (  255,   0, 0), (player_x, player_y + 10), 5) #top left
+    # pygame.draw.circle(screen, (  255,   0, 0), (player_x + 50, player_y + 100), 5) #bottom right
+    # pygame.draw.circle(screen, (  255,   0, 0), (player_x, player_y + 100), 5) #bottom left
 
 
     top_right = level[top_coord][right_coord]
