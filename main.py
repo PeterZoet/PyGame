@@ -1,4 +1,5 @@
 import pygame
+from levels import *
 
 pygame.init()
 
@@ -11,7 +12,7 @@ Screen settings
 screen_width = 1800
 screen_height = 900
 screen = pygame.display.set_mode([screen_width, screen_height])
-pygame.display.set_caption('Platformer')
+pygame.display.set_caption('Knowledge Quest; A BaseCamp Adventure')
 tile_size = 100
 
 """
@@ -28,6 +29,7 @@ inventory = [False, False, False, False, False]
 player_speed = 10
 jump_height = 15
 gravity = 1
+active_level = 0
 
 """
 Load images
@@ -52,27 +54,26 @@ logo = pygame.transform.scale(pygame.image.load('assets/images/logo.png'), (300,
 #     pygame.transform.scale(pygame.image.load(f'assets/images/player/player_stance_{x+1}.png'), (5 * player_scale, 12 * player_scale))
 #     for x in range(4)
 # ]
+
+# player_frames = [
+#     pygame.transform.scale(pygame.image.load(f'assets/images/player/new_design_{1}.png'), (5 * player_scale, 9.2 * player_scale))
+#     for x in range(4)
+# ]
+
 player_frames = [
-    pygame.transform.scale(pygame.image.load(f'assets/images/player/new_design_{1}.png'), (5 * player_scale, 9.2 * player_scale))
-    for x in range(4)
+    pygame.transform.scale(pygame.image.load(f'assets/images/player/new_player_stance_{x + 1}.png'), (9 * player_scale, 9.2 * player_scale))
+    for x in range(11)
 ]
 tiles = ["", new_underground, level_one_ground, stone_platform]
 
-def load_level():
+def load_level(active_level: int) -> list[list[int]]:
     """
     Create a list of list wit digits that represent certain entities
 
     :return: a level filled with digits representing assets
     """
-    level = [[0 for x in range(18)] for x in range(3)]
-    level += [
-        [0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7],
-        [0,0,3,0,6,0,0,0,0,0,0,0,0,0,0,0,0,2],
-        [0,0,0,0,3,0,0,0,0,3,0,0,0,0,9,8,2,1],
-        [4,0,10,0,0,0,3,0,0,0,0,0,0,0,0,2,1,1],
-        [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    ]
+    # from levels.py
+    level = levels[active_level]
     return level
 
 
@@ -99,6 +100,8 @@ def show_menu():
     menu_running = True
     while menu_running:
         screen.blit(main_menu_background, (0, 0))
+        font = pygame.font.SysFont(None, 94)
+        title_surface = font.render("Knowledge Quest; A BaseCamp Adventure", True, (196, 45, 69))
         font = pygame.font.SysFont(None, 74)
         title_surface = font.render("", True, (255, 255, 255))
         start_surface = font.render("", True, (255, 255, 255))
@@ -159,6 +162,28 @@ def draw_level(level: list[list[int]]):
                     screen.blit(new_lock, (y * tile_size, x * tile_size))
 
 
+def draw_inventory():   
+    """
+    Visualizes the inventory
+    """
+    font = pygame.font.SysFont(None, 30)
+    pygame.draw.rect(screen, 'black', [5, screen_height - 120, screen_width - 10, 110], 0, 5)
+    pygame.draw.rect(screen, (196, 45, 69), [5, screen_height - 120, screen_width - 10, 110], 3, 5)
+    pygame.draw.rect(screen, 'white', [8, screen_height - 117, 420, 104], 1, 5)
+    pygame.draw.rect(screen, 'white', [428, screen_height - 117, 872, 104], 1, 5)
+    pygame.draw.rect(screen, 'white', [880, screen_height - 117, 910, 104], 1, 5)
+    font.italic = True
+    inventory_text = font.render('Inventory:', True, 'white')
+    screen.blit(inventory_text, (14, screen_height - 113))
+    for _ in range(5):
+        pygame.draw.rect(screen, (196, 45, 69), [15 + (80 * _), screen_height - 88, 70, 70], 5, 5)
+        if inventory[_]:
+            scaled_knowledge = pygame.transform.scale(knowledge[_], (55, 55))
+            screen.blit(scaled_knowledge, (25 + (80 * _), screen_height - 88))
+
+
+
+
 def check_collision(level: list[list[int]], player_x: int, player_y: int):
     """
     Check if player is colliding
@@ -172,12 +197,12 @@ def check_collision(level: list[list[int]], player_x: int, player_y: int):
     right_coord = int((player_x + 50) // tile_size)
     left_coord = int(player_x // tile_size)
     top_coord = int((player_y + 10) // tile_size)
-    bottom_coord = int((player_y + 90) // tile_size)
+    bottom_coord = int((player_y + 100) // tile_size)
 
-    # pygame.draw.circle(screen, (  255,   0, 0), (player_x + 50, player_y + 10), 5) #top right
-    # pygame.draw.circle(screen, (  255,   0, 0), (player_x, player_y + 10), 5) #top left
-    # pygame.draw.circle(screen, (  255,   0, 0), (player_x + 50, player_y + 90), 5) #bottom right
-    # pygame.draw.circle(screen, (  255,   0, 0), (player_x, player_y + 90), 5) #bottom left
+    pygame.draw.circle(screen, (  255,   0, 0), (player_x + 50, player_y + 10), 5) #top right
+    pygame.draw.circle(screen, (  255,   0, 0), (player_x, player_y + 10), 5) #top left
+    pygame.draw.circle(screen, (  255,   0, 0), (player_x + 50, player_y + 100), 5) #bottom right
+    pygame.draw.circle(screen, (  255,   0, 0), (player_x, player_y + 100), 5) #bottom left
 
 
     top_right = level[top_coord][right_coord]
@@ -216,21 +241,7 @@ def check_collision(level: list[list[int]], player_x: int, player_y: int):
     elif 5 <= bottom_right <= 9: 
         if not inventory[top_right - 5]:
             inventory[bottom_right - 5] = True
-
-    if all(inventory):
-        if top_left == 10 or top_right == 1 or bottom_left == 10 or bottom_right == 10:
-             # when colliding with door and all knowledge in inventory
-            font = pygame.font.SysFont(None, 74)
-            title_surface = font.render("Gewonnen", True, (196, 45, 69))
-            screen.blit(title_surface, (screen_width // 2 - title_surface.get_width() // 2, screen_height // 2 - 100))
-    else:
-        if top_left == 10 or top_right == 1 or bottom_left == 10 or bottom_right == 10:
-             # when colliding with door and all knowledge in inventory
-            font = pygame.font.SysFont(None, 60)
-            title_surface = font.render("Zoek 5 kennis lampjes om het slot weg te halen", True, (0, 0, 0))
-            screen.blit(title_surface, (screen_width // 2 - title_surface.get_width() // 2, screen_height - 750))
-            
-
+          
     return collide
 
 
@@ -286,12 +297,13 @@ def game_loop(level: list[list[int]], start_pos: tuple[int, int]):
         screen.blit(level_one_wall, (0,0))
         draw_level(level)
         draw_player(counter, direction, mode, player_x, player_y)
+        draw_inventory()
         colliding = check_collision(level, player_x, player_y)
         
         if mode == 'walk':
             if direction == -1 and player_x > 0 and colliding != -1:
                 player_x -= player_speed
-            elif direction == 1 and player_x < screen_width - 50 and colliding != 1:
+            elif direction == 1 and player_x < screen_width - 60 and colliding != 1:
                 player_x += player_speed
 
         if in_air:
@@ -320,7 +332,7 @@ def game_loop(level: list[list[int]], start_pos: tuple[int, int]):
 
 
 def main():
-    level = load_level()
+    level = load_level(active_level)
     start_pos = find_player_start(level)
     show_menu()
     game_loop(level, start_pos)
