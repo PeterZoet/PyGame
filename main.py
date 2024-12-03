@@ -3,7 +3,7 @@ from levels import *
 
 pygame.init()
 
-pygame.mixer.music.load('assets/audio/theme.mp3')  
+pygame.mixer.music.load('assets/audio/retro-8bit-happy-videogame-music-246631.mp3')  
 pygame.mixer.music.play(-1)
 
 """
@@ -56,6 +56,31 @@ player_frames = [
 ]
 
 tiles = ["", new_underground, level_one_ground, stone_platform]
+
+
+def play_knowledge_collected_sound():
+    """
+    Play the soundeffect of collecting knwoledge (a coin) once
+    """
+    effect = pygame.mixer.Sound('assets/audio/coin-pickup-98269.mp3')  
+    effect.play()
+
+
+def play_door_sound():
+    """
+    Play the soundeffect of going trough a door once
+    """
+    effect = pygame.mixer.Sound('assets/audio/dorm-door-opening-6038.mp3')  
+    effect.play()
+
+def play_jump_sound():
+    """
+    Play the soundeffect of jumping into the air
+    """
+    effect = pygame.mixer.Sound('assets/audio/retro-jump-3-236683.mp3')  
+    effect.play()
+
+
 
 def load_level(active_level: int) -> list[list[int]]:
     """
@@ -160,6 +185,8 @@ def draw_level(level: list[list[int]]):
                 screen.blit(new_door, (y * tile_size, x * tile_size))
                 if not all(inventory):
                     screen.blit(new_lock, (y * tile_size, x * tile_size))
+                if all(inventory):
+                    play_door_sound()
 
 
 def draw_inventory():   
@@ -230,15 +257,21 @@ def check_collision(level: list[list[int]], player_x: int, player_y: int):
     if 5 <= top_left <= 9: # when colliding with knowledge
         if not inventory[top_left - 5]:
             inventory[top_left - 5] = True
+            play_knowledge_collected_sound()
     elif 5 <= top_right <= 9: 
         if not inventory[top_right - 5]:
             inventory[top_right - 5] = True
+            play_knowledge_collected_sound()
     elif 5 <= bottom_left <= 9: 
         if not inventory[top_right - 5]:
             inventory[bottom_left - 5] = True
+            play_knowledge_collected_sound()
     elif 5 <= bottom_right <= 9: 
         if not inventory[top_right - 5]:
             inventory[bottom_right - 5] = True
+            play_knowledge_collected_sound()
+
+ 
           
     return collide
 
@@ -254,7 +287,6 @@ def check_verticals(level: list[list[int]], player_x: int, player_y: int):
     # pygame.draw.circle(screen, (  0,   255, 0), (player_x + 30, player_y + 110), 5)
 
     # 0 is empty tile, 1 is underground, 2 is ground, 3 is platform, 4 is player, 5 is knowledge 
-    # VROEGER PLAYER_Y + 110 > 0
     if player_y + 110 > 0: # if full player is in level
         if 0 < level[bottom_coord][center_coord] <  4: # ground, underground or platform
             falling = False
@@ -322,6 +354,7 @@ def game_loop(level: list[list[int]], start_pos: tuple[int, int]):
                     direction, mode = -1, 'walk'
                 elif event.key in (pygame.K_SPACE, pygame.K_UP) and not in_air:
                     in_air, y_change = True, jump_height
+                    play_jump_sound()
             elif event.type == pygame.KEYUP:
                 if event.key in (pygame.K_RIGHT, pygame.K_LEFT):
                     mode = 'idle'
