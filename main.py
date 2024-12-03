@@ -35,6 +35,7 @@ active_level = 0
 Load images
 """
 background = pygame.transform.scale(pygame.image.load('assets/images/background.png'), (screen_width, screen_height))
+end_screen = pygame.transform.scale(pygame.image.load('assets/images/end_screen.png'), (screen_width, screen_height))
 level_one_wall = pygame.transform.scale(pygame.image.load('assets/images/level_one_wall.png'), (screen_width, screen_height))
 ground = pygame.transform.scale(pygame.image.load('assets/images/tiles/ground.png'), (tile_size, tile_size))
 level_one_ground = pygame.transform.scale(pygame.image.load('assets/images/tiles/level_one_ground.png'), (tile_size, tile_size))
@@ -68,7 +69,7 @@ tiles = ["", new_underground, level_one_ground, stone_platform]
 
 def load_level(active_level: int) -> list[list[int]]:
     """
-    Create a list of list wit digits that represent certain entities
+    Create a list of list with digits that represent certain entities
 
     :return: a level filled with digits representing assets
     """
@@ -76,6 +77,29 @@ def load_level(active_level: int) -> list[list[int]]:
     level = levels[active_level]
     return level
 
+def checkpoint_reached():
+    """
+    This function triggers when the player's inventory is full and he walks up to the door.
+    Because there are only 2 levels it checks if the player is in the first level (and wil take it to the second level if he is)
+    Checks if the players inventory is full (if he collected all the light bulbs)
+    """
+    global active_level  
+    
+    active_level += 1  
+    
+    if active_level >= len(levels):  
+       # pygame.quit()
+        show_end_screen()
+        return
+    
+    for _ in range(5):  
+        inventory[_] = False  
+    
+    level = load_level(active_level)  
+    start_pos = find_player_start(level)
+    game_loop(level, start_pos)
+
+    
 
 def find_player_start(level: list[list[int]]) -> tuple[int, int]:
     """
@@ -122,6 +146,36 @@ def show_menu():
                     exit()
         pygame.display.flip()
 
+def show_end_screen():
+    """
+    Present the END menu to the user, options:
+    - Press ESC to quit
+    """
+    end_screen = pygame.transform.scale(pygame.image.load("assets/images/end_screen.png"), (screen_width, screen_height))
+    menu_running = True
+    while menu_running:
+        screen.blit(end_screen, (0, 0))
+        font = pygame.font.SysFont(None, 94)
+        title_surface = font.render("Knowledge Quest; A BaseCamp Adventure", True, (196, 45, 69))
+        font = pygame.font.SysFont(None, 74)
+        title_surface = font.render("", True, (255, 255, 255))
+        start_surface = font.render("", True, (255, 255, 255))
+        exit_surface = font.render("", True, (255, 255, 255))
+        screen.blit(title_surface, (screen_width // 2 - title_surface.get_width() // 2, screen_height // 2 - 100))
+        screen.blit(start_surface, (screen_width // 2 - start_surface.get_width() // 2, screen_height // 2))
+        screen.blit(exit_surface, (screen_width // 2 - exit_surface.get_width() // 2, screen_height // 2 + 100))
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    menu_running = False
+                elif event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    exit()
+        pygame.display.flip()
 
 def draw_player(count: int, direction: int, mode: str, x: int, y: int):
     """
@@ -241,8 +295,24 @@ def check_collision(level: list[list[int]], player_x: int, player_y: int):
     elif 5 <= bottom_right <= 9: 
         if not inventory[top_right - 5]:
             inventory[bottom_right - 5] = True
-          
+            
+            
+    
+    if top_left == 10:
+        if inventory == [True, True, True, True, True]:
+            checkpoint_reached()
+    elif top_right == 10:
+        if inventory == [True, True, True, True, True]:
+            checkpoint_reached()
+    elif bottom_left == 10:
+        if inventory == [True, True, True, True, True]:
+            checkpoint_reached()
+    elif bottom_right == 10:
+        if inventory == [True, True, True, True, True]:
+            checkpoint_reached()
+
     return collide
+
 
 
 def check_verticals(level: list[list[int]], player_x: int, player_y: int):
