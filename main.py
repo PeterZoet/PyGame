@@ -3,7 +3,8 @@ from levels import *
 
 pygame.init()
 
-pygame.mixer.music.load('assets/audio/retro-8bit-happy-videogame-music-246631.mp3')  
+pygame.mixer.music.load('assets/audio/retro-8bit-happy-videogame-music-246631.mp3')
+pygame.mixer.music.set_volume(0.8)
 pygame.mixer.music.play(-1)
 
 """
@@ -65,6 +66,7 @@ def play_door_sound():
     Play the soundeffect of going trough a door once
     """
     effect = pygame.mixer.Sound('assets/audio/dorm-door-opening-6038.mp3')  
+    effect.set_volume(1.8)
     effect.play()
 
 def play_jump_sound():
@@ -72,6 +74,7 @@ def play_jump_sound():
     Play the soundeffect of jumping into the air
     """
     effect = pygame.mixer.Sound('assets/audio/retro-jump-3-236683.mp3')  
+    effect.set_volume(0.2)
     effect.play()
 
 
@@ -92,6 +95,7 @@ def checkpoint_reached():
     Because there are only 2 levels it checks if the player is in the first level (and wil take it to the second level if he is)
     Checks if the players inventory is full (if he collected all the light bulbs)
     """
+    play_door_sound()
     global active_level  
     
     active_level += 1  
@@ -211,8 +215,6 @@ def draw_level(level: list[list[int]]):
                 screen.blit(door, (y * tile_size, x * tile_size))
                 if not all(inventory):
                     screen.blit(lock, (y * tile_size, x * tile_size))
-                if all(inventory):
-                    play_door_sound()
 
 
 def draw_inventory():   
