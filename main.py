@@ -34,29 +34,22 @@ active_level = 0
 """
 Load images
 """
-background = pygame.transform.scale(pygame.image.load('assets/images/background.png'), (screen_width, screen_height))
+main_menu_background = pygame.transform.scale(pygame.image.load('assets/images/main_menu_background.jpg'), (screen_width, screen_height))
 end_screen = pygame.transform.scale(pygame.image.load('assets/images/end_screen.png'), (screen_width, screen_height))
 level_one_wall = pygame.transform.scale(pygame.image.load('assets/images/level_one_wall.png'), (screen_width, screen_height))
-ground = pygame.transform.scale(pygame.image.load('assets/images/tiles/ground.png'), (tile_size, tile_size))
 level_one_ground = pygame.transform.scale(pygame.image.load('assets/images/tiles/level_one_ground.png'), (tile_size, tile_size))
-underground = pygame.transform.scale(pygame.image.load('assets/images/tiles/underground2.png'), (tile_size, tile_size))
-new_underground = pygame.transform.scale(pygame.image.load('assets/images/tiles/new_underground.png'), (tile_size, tile_size))
-platform = pygame.transform.scale(pygame.image.load('assets/images/tiles/platform.png'), (tile_size, 0.6 * tile_size))
-stone_platform = pygame.transform.scale(pygame.image.load('assets/images/tiles/vines_platform.png'), (tile_size, tile_size))
+underground = pygame.transform.scale(pygame.image.load('assets/images/tiles/underground.png'), (tile_size, tile_size))
+vines_platform = pygame.transform.scale(pygame.image.load('assets/images/tiles/vines_platform.png'), (tile_size, tile_size))
 door = pygame.transform.scale(pygame.image.load('assets/images/door.png'), (tile_size, tile_size))
-new_door = pygame.transform.scale(pygame.image.load('assets/images/new_door.png'), (tile_size, tile_size))
 lock = pygame.transform.scale(pygame.image.load('assets/images/lock.png'), (tile_size, tile_size))
-new_lock = pygame.transform.scale(pygame.image.load('assets/images/new_lock.png'), (tile_size, tile_size))
 knowledge = [pygame.transform.scale(pygame.image.load('assets/images/knowledge.png'), (tile_size, tile_size)) for _ in range(5)]
-new_knowledge = [pygame.transform.scale(pygame.image.load('assets/images/new_knowledge.png'), (tile_size, tile_size)) for _ in range(5)]
-logo = pygame.transform.scale(pygame.image.load('assets/images/logo.png'), (300, 300))
 
 player_frames = [
     pygame.transform.scale(pygame.image.load(f'assets/images/player/stance_{x + 1}_player.png'), (5.5 * player_scale, 9.2 * player_scale))
     for x in range(11)
 ]
 
-tiles = ["", new_underground, level_one_ground, stone_platform]
+tiles = ["", underground, level_one_ground, vines_platform]
 
 
 def play_knowledge_collected_sound():
@@ -136,19 +129,9 @@ def show_menu():
     - Press ENTER to start
     - Press ESC to quit
     """
-    main_menu_background = pygame.transform.scale(pygame.image.load("assets/images/new_main_menu_background.jpg"), (screen_width, screen_height))
     menu_running = True
     while menu_running:
         screen.blit(main_menu_background, (0, 0))
-        font = pygame.font.SysFont(None, 94)
-        title_surface = font.render("Knowledge Quest; A BaseCamp Adventure", True, (196, 45, 69))
-        font = pygame.font.SysFont(None, 74)
-        title_surface = font.render("", True, (255, 255, 255))
-        start_surface = font.render("", True, (255, 255, 255))
-        exit_surface = font.render("", True, (255, 255, 255))
-        screen.blit(title_surface, (screen_width // 2 - title_surface.get_width() // 2, screen_height // 2 - 100))
-        screen.blit(start_surface, (screen_width // 2 - start_surface.get_width() // 2, screen_height // 2))
-        screen.blit(exit_surface, (screen_width // 2 - exit_surface.get_width() // 2, screen_height // 2 + 100))
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -167,20 +150,9 @@ def show_end_screen():
     Present the END menu to the user, options:
     - Press ESC to quit
     """
-    end_screen = pygame.transform.scale(pygame.image.load("assets/images/end_screen.png"), (screen_width, screen_height))
     menu_running = True
     while menu_running:
         screen.blit(end_screen, (0, 0))
-        font = pygame.font.SysFont(None, 94)
-        title_surface = font.render("Knowledge Quest; A BaseCamp Adventure", True, (196, 45, 69))
-        font = pygame.font.SysFont(None, 74)
-        title_surface = font.render("", True, (255, 255, 255))
-        start_surface = font.render("", True, (255, 255, 255))
-        exit_surface = font.render("", True, (255, 255, 255))
-        screen.blit(title_surface, (screen_width // 2 - title_surface.get_width() // 2, screen_height // 2 - 100))
-        screen.blit(start_surface, (screen_width // 2 - start_surface.get_width() // 2, screen_height // 2))
-        screen.blit(exit_surface, (screen_width // 2 - exit_surface.get_width() // 2, screen_height // 2 + 100))
-        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -234,11 +206,11 @@ def draw_level(level: list[list[int]]):
                 screen.blit(tiles[value], (y * tile_size, x * tile_size))
             elif 5 <= value <= 9:
                 if not inventory[value - 5]:
-                    screen.blit(new_knowledge[value - 5], (y * tile_size, x * tile_size))
+                    screen.blit(knowledge[value - 5], (y * tile_size, x * tile_size))
             elif value == 10:
-                screen.blit(new_door, (y * tile_size, x * tile_size))
+                screen.blit(door, (y * tile_size, x * tile_size))
                 if not all(inventory):
-                    screen.blit(new_lock, (y * tile_size, x * tile_size))
+                    screen.blit(lock, (y * tile_size, x * tile_size))
                 if all(inventory):
                     play_door_sound()
 
@@ -326,10 +298,8 @@ def check_collision(level: list[list[int]], player_x: int, player_y: int):
             play_knowledge_collected_sound()
 
  
-            
-            
-    
-    if top_left == 10:
+             
+    if top_left == 10: # Code to trigger checkpoint_reached when colliding with a door on full inventory
         if inventory == [True, True, True, True, True]:
             checkpoint_reached()
     elif top_right == 10:
