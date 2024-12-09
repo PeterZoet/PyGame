@@ -45,7 +45,7 @@ pygame.mixer.music.play(-1)
 """
 Load images
 """
-main_menu_background = pygame.transform.scale(pygame.image.load('assets/images/main_menu_background.jpg'), (screen_width, screen_height))
+main_menu_background = pygame.transform.scale(pygame.image.load('assets/images/main_menu_background.png'), (screen_width, screen_height))
 end_screen = pygame.transform.scale(pygame.image.load('assets/images/end_screen.png'), (screen_width, screen_height))
 level_one_wall = pygame.transform.scale(pygame.image.load('assets/images/level_one_wall.png'), (screen_width, screen_height))
 level_one_ground = pygame.transform.scale(pygame.image.load('assets/images/tiles/level_one_ground.png'), (tile_size, tile_size))
