@@ -1,10 +1,9 @@
+import sys
 import pygame
-from levels import *
+import asyncio # for pybag
+import levels
 
 pygame.init()
-
-pygame.mixer.music.load('assets/audio/retro-8bit-happy-videogame-music-246631.mp3')  
-pygame.mixer.music.play(-1)
 
 """
 Screen settings
@@ -32,6 +31,18 @@ gravity = 1
 active_level = 0
 
 """
+Load sounds
+"""
+background_music = "assets/audio/retro-8bit-happy-videogame-music-246631.ogg"
+coin_sound = "assets/audio/coin-pickup-98269.ogg"
+door_sound = "assets/audio/dorm-door-opening-6038.ogg"
+jump_sound = "assets/audio/retro-jump-3-236683.ogg"
+
+pygame.mixer.music.load(background_music)  
+pygame.mixer.music.set_volume(0.8)
+pygame.mixer.music.play(-1)
+
+"""
 Load images
 """
 main_menu_background = pygame.transform.scale(pygame.image.load('assets/images/main_menu_background.png'), (screen_width, screen_height))
@@ -56,7 +67,7 @@ def play_knowledge_collected_sound():
     """
     Play the soundeffect of collecting knwoledge (a coin) once
     """
-    effect = pygame.mixer.Sound('assets/audio/coin-pickup-98269.mp3')  
+    effect = pygame.mixer.Sound(coin_sound)  
     effect.play()
 
 
@@ -64,14 +75,16 @@ def play_door_sound():
     """
     Play the soundeffect of going trough a door once
     """
-    effect = pygame.mixer.Sound('assets/audio/dorm-door-opening-6038.mp3')  
+    effect = pygame.mixer.Sound(door_sound)  
+    effect.set_volume(1.8)
     effect.play()
 
 def play_jump_sound():
     """
     Play the soundeffect of jumping into the air
     """
-    effect = pygame.mixer.Sound('assets/audio/retro-jump-3-236683.mp3')  
+    effect = pygame.mixer.Sound(jump_sound)  
+    effect.set_volume(0.2)
     effect.play()
 
 
@@ -82,23 +95,24 @@ def load_level(active_level: int) -> list[list[int]]:
 
     :return: a level filled with digits representing assets
     """
-    # from levels.py
-    level = levels[active_level]
+    # from levels.py 
+    level = levels.levels[active_level]
     return level
 
-def checkpoint_reached():
+
+async def checkpoint_reached():
     """
     This function triggers when the player's inventory is full and he walks up to the door.
     Because there are only 2 levels it checks if the player is in the first level (and wil take it to the second level if he is)
     Checks if the players inventory is full (if he collected all the light bulbs)
     """
+    play_door_sound()
     global active_level  
     
     active_level += 1  
     
-    if active_level >= len(levels):  
-       # pygame.quit()
-        show_end_screen()
+    if active_level >= len(levels.levels):  
+        await show_end_screen()
         return
     
     for _ in range(5):  
@@ -106,8 +120,24 @@ def checkpoint_reached():
     
     level = load_level(active_level)  
     start_pos = find_player_start(level)
-    game_loop(level, start_pos)
+    await game_loop(level, start_pos)
 
+
+async def restart_game():
+    """
+    Resets the game state and restarts the main game loop.
+    """
+    global active_level  
+    
+    active_level = 0
+    # Example of resetting the game:
+    level = load_level(0)  # Load the first level or initial game state
+    start_pos = find_player_start(level)  # Determine the player's starting position
+
+    for _ in range(5):  
+        inventory[_] = False  
+
+    await game_loop(level, start_pos)
     
 
 def find_player_start(level: list[list[int]]) -> tuple[int, int]:
@@ -123,7 +153,7 @@ def find_player_start(level: list[list[int]]) -> tuple[int, int]:
     return (0, 0)
 
 
-def show_menu():
+async def show_menu():
     """
     Present a menu to the user, options:
     - Press ENTER to start
@@ -132,20 +162,23 @@ def show_menu():
     menu_running = True
     while menu_running:
         screen.blit(main_menu_background, (0, 0))
-        
+        pygame.display.flip()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
+                if event.key == pygame.K_RETURN:  # Start game
                     menu_running = False
-                elif event.key == pygame.K_ESCAPE:
+                elif event.key == pygame.K_ESCAPE:  # Quit game
                     pygame.quit()
                     exit()
-        pygame.display.flip()
 
-def show_end_screen():
+        await asyncio.sleep(0.01)
+
+
+async def show_end_screen():
     """
     Present the END menu to the user, options:
     - Press ESC to quit
@@ -153,17 +186,22 @@ def show_end_screen():
     menu_running = True
     while menu_running:
         screen.blit(end_screen, (0, 0))
+        pygame.display.flip()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
+                if event.key == pygame.K_RETURN:  # Restart game (if needed)
                     menu_running = False
-                elif event.key == pygame.K_ESCAPE:
+                    await restart_game()
+                elif event.key == pygame.K_ESCAPE:  # Quit game
                     pygame.quit()
                     exit()
-        pygame.display.flip()
+
+        await asyncio.sleep(0.01)
+
 
 def draw_player(count: int, direction: int, mode: str, x: int, y: int):
     """
@@ -211,31 +249,43 @@ def draw_level(level: list[list[int]]):
                 screen.blit(door, (y * tile_size, x * tile_size))
                 if not all(inventory):
                     screen.blit(lock, (y * tile_size, x * tile_size))
-                if all(inventory):
-                    play_door_sound()
 
 
 def draw_inventory():   
     """
     Visualizes the inventory
     """
-    font = pygame.font.SysFont(None, 30)
+    font = pygame.font.SysFont('assets/fonts/Roboto-Black.ttf', 30)
     pygame.draw.rect(screen, 'black', [5, screen_height - 120, screen_width - 10, 110], 0, 5)
     pygame.draw.rect(screen, (196, 45, 69), [5, screen_height - 120, screen_width - 10, 110], 3, 5)
     pygame.draw.rect(screen, 'white', [8, screen_height - 117, 420, 104], 1, 5)
     pygame.draw.rect(screen, 'white', [428, screen_height - 117, 872, 104], 1, 5)
     pygame.draw.rect(screen, 'white', [880, screen_height - 117, 910, 104], 1, 5)
+    # rect 1
     font.italic = True
     inventory_text = font.render('Inventory:', True, 'white')
     screen.blit(inventory_text, (14, screen_height - 113))
     for _ in range(5):
-        pygame.draw.rect(screen, (196, 45, 69), [15 + (80 * _), screen_height - 88, 70, 70], 5, 5)
+        if inventory == [True, True, True, True, True]:
+            pygame.draw.rect(screen, (100, 255, 100), [15 + (80 * _), screen_height - 88, 70, 70], 5, 5)
+        else:
+            pygame.draw.rect(screen, (196, 45, 69), [15 + (80 * _), screen_height - 88, 70, 70], 5, 5)
         if inventory[_]:
-            scaled_knowledge = pygame.transform.scale(knowledge[_], (55, 55))
-            screen.blit(scaled_knowledge, (25 + (80 * _), screen_height - 88))
+            scaled_knowledge = pygame.transform.scale(knowledge[_], (80, 80))
+            screen.blit(scaled_knowledge, (10 + (80 * _), screen_height - 94))
+
+    # rect 2
+    font = pygame.font.SysFont('assets/fonts/Roboto-Black.ttf', 34)
+    inventory_text = font.render('Collect knowledge to unlock the door!', True, 'white')
+    screen.blit(inventory_text, (434, screen_height - 108))
+    font = pygame.font.SysFont('assets/fonts/Roboto-Black.ttf', 28)
+    inventory_text = font.render('Move with: arrows or [W, A, D]', True, 'white')
+    screen.blit(inventory_text, (434, screen_height - 73))
+    inventory_text = font.render('You could also use [Space] to jump', True, 'white')
+    screen.blit(inventory_text, (434, screen_height - 50))
 
 
-def check_collision(level: list[list[int]], player_x: int, player_y: int):
+async def check_collision(level: list[list[int]], player_x: int, player_y: int):
     """
     Check if player is colliding
     Not actual position but visual so it looks good while playing
@@ -301,16 +351,16 @@ def check_collision(level: list[list[int]], player_x: int, player_y: int):
              
     if top_left == 10: # Code to trigger checkpoint_reached when colliding with a door on full inventory
         if inventory == [True, True, True, True, True]:
-            checkpoint_reached()
+            await checkpoint_reached()
     elif top_right == 10:
         if inventory == [True, True, True, True, True]:
-            checkpoint_reached()
+            await checkpoint_reached()
     elif bottom_left == 10:
         if inventory == [True, True, True, True, True]:
-            checkpoint_reached()
+            await checkpoint_reached()
     elif bottom_right == 10:
         if inventory == [True, True, True, True, True]:
-            checkpoint_reached()
+            await checkpoint_reached()
 
     return collide
 
@@ -340,7 +390,7 @@ def check_verticals(level: list[list[int]], player_x: int, player_y: int):
     return falling, player_y
 
 
-def game_loop(level: list[list[int]], start_pos: tuple[int, int]):
+async def game_loop(level: list[list[int]], start_pos: tuple[int, int]):
     """
     The loop of the game, it runs on 60 fps.
 
@@ -357,6 +407,7 @@ def game_loop(level: list[list[int]], start_pos: tuple[int, int]):
     colliding = False
     
     while True:
+        await asyncio.sleep(0)
         timer.tick(fps)
 
         if counter < 19:
@@ -368,7 +419,7 @@ def game_loop(level: list[list[int]], start_pos: tuple[int, int]):
         draw_level(level)
         draw_player(counter, direction, mode, player_x, player_y)
         draw_inventory()
-        colliding = check_collision(level, player_x, player_y)
+        colliding = await check_collision(level, player_x, player_y)
         
         if mode == 'walk':
             if direction == -1 and player_x > 0 and colliding != -1:
@@ -388,11 +439,11 @@ def game_loop(level: list[list[int]], start_pos: tuple[int, int]):
                 pygame.quit()
                 exit()
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RIGHT:
+                if event.key == pygame.K_RIGHT: # [→][d]
                     direction, mode = 1, 'walk'
-                elif event.key == pygame.K_LEFT:
+                elif event.key == pygame.K_LEFT: # [←][a]
                     direction, mode = -1, 'walk'
-                elif event.key in (pygame.K_SPACE, pygame.K_UP) and not in_air:
+                elif event.key in (pygame.K_SPACE, pygame.K_UP, pygame.K_w) and not in_air: # [↑][w][space]
                     in_air, y_change = True, jump_height
                     play_jump_sound()
             elif event.type == pygame.KEYUP:
@@ -402,12 +453,15 @@ def game_loop(level: list[list[int]], start_pos: tuple[int, int]):
         pygame.display.flip()
 
 
-def main():
+async def main():
+    """
+    Main coroutine to manage game states.
+    """
     level = load_level(active_level)
     start_pos = find_player_start(level)
-    show_menu()
-    game_loop(level, start_pos)
+
+    await show_menu()
+    await game_loop(level, start_pos)
 
 
-if __name__ == "__main__":
-    main()
+asyncio.run(main())
